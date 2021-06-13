@@ -5,7 +5,9 @@ const $ = new Env('明星小店');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 $.inviteCodeList = [];
-$.authorCodeList = [];
+$.authorCodeList = [
+  "LoZ_Iq7EnaiWY94DMjGstJfIzVzVdsCCIdAFUATwxNA",
+];
 let cookiesArr = [];
 let uniqueIdList = [
     {'id':'HY4HCW','name':'陈坤'},{'id':'KDDAR9','name':'徐凯'},
@@ -110,7 +112,7 @@ if ($.isNode()) {
         }
         await main();
     }
-    $.inviteCodeList.push(...getRandomArrayElements($.authorCodeList, 5));
+    $.inviteCodeList.push(...getRandomArrayElements($.authorCodeList, 1));
     for (let i = 0; i < cookiesArr.length; i++) {
         $.cookie = cookiesArr[i];
         $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
