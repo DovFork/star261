@@ -12,6 +12,8 @@
 const $ = new Env('惊喜牧场');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+//惊喜APP的UA。领取助力任务奖励需要惊喜APP的UA,环境变量：JX_USER_AGENT，有能力的可以填上自己的UA
+const JXUserAgent =  $.isNode() ? (process.env.JX_USER_AGENT ? process.env.JX_USER_AGENT : ``):``;
 $.inviteCodeList = [];
 let cookiesArr = [];
 $.appId = 10028;
@@ -150,7 +152,7 @@ async function pasture() {
       }
       await takeGetRequest('GetUserTaskStatusList');
       await $.wait(2000);
-      await doTask();
+      await doTask(j);
       await $.wait(2000);
       if (j === 2) {
         //割草
@@ -181,19 +183,32 @@ async function pasture() {
     }
     await takeGetRequest('GetHomePageInfo');
     await $.wait(2000);
-
+    let materialNumber = 0;
+    let materialinfoList = $.homeInfo.materialinfo;
+    for (let j = 0; j < materialinfoList.length; j++) {
+      if (materialinfoList[j].type !== 1) {
+        continue;
+      }
+      materialNumber = Number(materialinfoList[j].value);//白菜数量
+    }
     if (Number($.homeInfo.coins) > 5000) {
       let canBuyTimes = Math.floor(Number($.homeInfo.coins) / 5000);
       console.log(`\n共有金币${$.homeInfo.coins},可以购买${canBuyTimes}次白菜`);
-      for (let j = 0; j < canBuyTimes; j++) {
-        console.log(`第${j + 1}次购买白菜`);
-        await takeGetRequest('buy');
+      if(Number(materialNumber) < 400){
+        for (let j = 0; j < canBuyTimes; j++) {
+          console.log(`第${j + 1}次购买白菜`);
+          await takeGetRequest('buy');
+          await $.wait(2000);
+        }
+        await takeGetRequest('GetHomePageInfo');
         await $.wait(2000);
+      }else{
+        console.log(`现有白菜${materialNumber},大于400颗,不进行购买`);
       }
-      await takeGetRequest('GetHomePageInfo');
-      await $.wait(2000);
+    }else{
+      console.log(`\n共有金币${$.homeInfo.coins}`);
     }
-    let materialinfoList = $.homeInfo.materialinfo;
+    materialinfoList = $.homeInfo.materialinfo;
     for (let j = 0; j < materialinfoList.length; j++) {
       if (materialinfoList[j].type !== 1) {
         continue;
@@ -227,7 +242,7 @@ async function pasture() {
   }
 }
 
-async function doTask() {
+async function doTask(j) {
   for (let i = 0; i < $.taskList.length; i++) {
     $.oneTask = $.taskList[i];
     //console.log($.oneTask.taskId);
@@ -238,7 +253,19 @@ async function doTask() {
         await $.wait(2000);
       }
     } else {//每日任务
-      if ($.oneTask.awardStatus === 2 && $.oneTask.taskCaller === 1) {//浏览任务
+      if($.oneTask.awardStatus === 1){
+        if(j===0){
+          console.log(`任务：${$.oneTask.taskName},已完成`);
+        }
+      }else if($.oneTask.taskType === 4){
+        if($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes){
+          console.log(`完成任务：${$.oneTask.taskName}`);
+          await takeGetRequest('Award');
+          await $.wait(2000);
+        }else if(j===0){
+          console.log(`任务：${$.oneTask.taskName},未完成`);
+        }
+      }else if ($.oneTask.awardStatus === 2 && $.oneTask.taskCaller === 1) {//浏览任务
         if (Number($.oneTask.completedTimes) > 0 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
           console.log(`完成任务：${$.oneTask.taskName}`);
           await takeGetRequest('Award');
@@ -380,6 +407,7 @@ function dealReturn(type, data) {
       data = JSON.parse(data);
       if (data.ret === 0) {
         $.taskList = data.data.userTaskStatusList;
+        //console.log(JSON.stringify($.taskList )+'\n\n');
       }
       break;
     case 'Award':
@@ -438,6 +466,12 @@ function dealReturn(type, data) {
 }
 
 function getGetRequest(type, url) {
+  let ua = ``;
+  if(JXUserAgent){
+    ua = JXUserAgent;
+  }else{
+    ua = `jdpingou;iPhone;4.9.4;14.6;${randomWord(40)};network/wifi;model/iPhone9,2;appBuild/100579;ADID/00000000-0000-0000-0000-000000000000;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/1;hasOCPay/0;supportBestPay/0;session/936;pap/JA2019_3111800;brand/apple;supportJDSHWK/1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E200`;
+  }
   const method = `GET`;
   let headers = {
     'Origin': `https://st.jingxi.com`,
@@ -446,11 +480,28 @@ function getGetRequest(type, url) {
     'Accept': `application/json`,
     'Referer': `https://st.jingxi.com/pingou/jxmc/index.html`,
     'Host': `m.jingxi.com`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent':ua,
+    //'User-Agent':$.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Accept-Encoding': `gzip, deflate, br`,
     'Accept-Language': `zh-cn`
   };
   return {url: url, method: method, headers: headers};
+}
+
+function randomWord(randomFlag, min, max){
+  var str = "",
+    range = min,
+    arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+  // 随机产生
+  if(randomFlag){
+    range = Math.round(Math.random() * (max-min)) + min;
+  }
+  for(var i=0; i<range; i++){
+    pos = Math.round(Math.random() * (arr.length-1));
+    str += arr[pos];
+  }
+  return str;
 }
 
 function decrypt(time, stk, type, url) {
@@ -487,7 +538,8 @@ async function requestAlgo() {
       'Pragma': 'no-cache',
       'Cache-Control': 'no-cache',
       'Accept': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+      'User-Agent':$.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+      //'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
       'Content-Type': 'application/json',
       'Origin': 'https://st.jingxi.com',
       'Sec-Fetch-Site': 'cross-site',
