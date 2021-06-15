@@ -71,7 +71,7 @@ async function main() {
   await getHomeData();
   if ($.secretp) {
     secretp = $.secretp;
-    await stall_collectProduceScore({ "ss": getBody() });
+    await stall_collectProduceScore({ "ss": getBody()});
   }
 }
 function stall_collectProduceScore(body) {
@@ -130,7 +130,7 @@ function getHomeData() {
 function taskPostUrl(functionId, body = {}) {
   return {
     url: `${JD_API_HOST}?functionId=${functionId}`,
-    body: `functionId=${functionId}&body=${JSON.stringify(body)}&client=wh5&clientVersion=1.0.0`,
+    body: `functionId=${functionId}&body=${JSON.stringify(body)}&uuid=8888&client=wh5&clientVersion=1.0.0`,
     headers: {
       "User-Agent": "jdapp;iPhone;9.2.0;14.1;",
       'Content-Type': 'application/x-www-form-urlencoded',
