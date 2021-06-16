@@ -128,9 +128,10 @@ function getHomeData() {
 }
 
 function taskPostUrl(functionId, body = {}) {
+  let uuid = getUUID();
   return {
     url: `${JD_API_HOST}?functionId=${functionId}`,
-    body: `functionId=${functionId}&body=${JSON.stringify(body)}&uuid=8888&client=wh5&clientVersion=1.0.0`,
+    body: `functionId=${functionId}&body=${JSON.stringify(body)}&uuid=${uuid}&client=wh5&clientVersion=1.0.0`,
     headers: {
       "User-Agent": "jdapp;iPhone;9.2.0;14.1;",
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -140,6 +141,17 @@ function taskPostUrl(functionId, body = {}) {
       'Referer': 'https://wbbny.m.jd.com/babelDiy/Zeus/2s7hhSTbhMgxpGoa9JDnbDzJTaBB/index.html',
     }
   }
+}
+
+function getUUID() {
+    var n = (new Date).getTime();
+    let uuid="xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
+    uuid = uuid.replace(/[xy]/g, function (e) {
+        var t = (n + 16 * Math.random()) % 16 | 0;
+        return n = Math.floor(n / 16),
+            ("x" == e ? t : 3 & t | 8).toString(16)
+    }).replace(/-/g, "")
+    return uuid
 }
 
 function jsonParse(str) {

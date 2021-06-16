@@ -631,6 +631,7 @@ async function dealReturn(type, data) {
           break;
         default:
           console.log(`怪兽大作战助力失败：${JSON.stringify(data)}`);
+          $.canHelp = false;
       }
       break;
     case 'zoo_pk_getHomeData':
@@ -840,21 +841,34 @@ async function getPostRequest(type, body) {
 }
 
 function getPostBody(type) {
+  let uuid = getUUID();
   let taskBody = '';
   if (type === 'help') {
-    taskBody = `functionId=zoo_collectScore&body=${JSON.stringify({"taskId": 2,"inviteId":$.inviteId,"actionType":1,"ss" :getBody()})}&uuid=8888&client=wh5&clientVersion=1.0.0`
+    taskBody = `functionId=zoo_collectScore&body=${JSON.stringify({"taskId": 2,"inviteId":$.inviteId,"actionType":1,"ss" :getBody()})}&uuid=${uuid}&client=wh5&clientVersion=1.0.0`
   } else if (type === 'pkHelp') {
-    taskBody = `functionId=zoo_pk_assistGroup&body=${JSON.stringify({"confirmFlag": 1,"inviteId" : $.pkInviteId,"ss" : getBody()})}&uuid=8888&client=wh5&clientVersion=1.0.0`;
+    taskBody = `functionId=zoo_pk_assistGroup&body=${JSON.stringify({"confirmFlag": 1,"inviteId" : $.pkInviteId,"ss" : getBody()})}&uuid=${uuid}&client=wh5&clientVersion=1.0.0`;
   } else if (type === 'zoo_collectProduceScore') {
-    taskBody = `functionId=zoo_collectProduceScore&body=${JSON.stringify({"ss" :getBody()})}&uuid=8888&client=wh5&clientVersion=1.0.0`;
+    taskBody = `functionId=zoo_collectProduceScore&body=${JSON.stringify({"ss" :getBody()})}&uuid=${uuid}&client=wh5&clientVersion=1.0.0`;
   } else if(type === 'zoo_getWelfareScore'){
-    taskBody = `functionId=zoo_getWelfareScore&body=${JSON.stringify({"type": 2,"currentScence":$.currentScence,"ss" : getBody()})}&uuid=8888&client=wh5&clientVersion=1.0.0`;
+    taskBody = `functionId=zoo_getWelfareScore&body=${JSON.stringify({"type": 2,"currentScence":$.currentScence,"ss" : getBody()})}&uuid=${uuid}&client=wh5&clientVersion=1.0.0`;
   } else if(type === 'add_car'){
-    taskBody = `functionId=zoo_collectScore&body=${JSON.stringify({"taskId": $.taskId,"taskToken":$.taskToken,"actionType":1,"ss" : getBody()})}&uuid=8888&client=wh5&clientVersion=1.0.0`
+    taskBody = `functionId=zoo_collectScore&body=${JSON.stringify({"taskId": $.taskId,"taskToken":$.taskToken,"actionType":1,"ss" : getBody()})}&uuid=${uuid}&client=wh5&clientVersion=1.0.0`
   }else{
-    taskBody = `functionId=${type}&body=${JSON.stringify({"taskId": $.oneTask.taskId,"actionType":1,"taskToken" : $.oneActivityInfo.taskToken,"ss" : getBody()})}&uuid=8888&client=wh5&clientVersion=1.0.0`
+    taskBody = `functionId=${type}&body=${JSON.stringify({"taskId": $.oneTask.taskId,"actionType":1,"taskToken" : $.oneActivityInfo.taskToken,"ss" : getBody()})}&uuid=${uuid}&client=wh5&clientVersion=1.0.0`
   }
   return taskBody
+}
+
+
+function getUUID() {
+    var n = (new Date).getTime();
+    let uuid="xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
+    uuid = uuid.replace(/[xy]/g, function (e) {
+        var t = (n + 16 * Math.random()) % 16 | 0;
+        return n = Math.floor(n / 16),
+            ("x" == e ? t : 3 & t | 8).toString(16)
+    }).replace(/-/g, "")
+    return uuid
 }
 
 /**
