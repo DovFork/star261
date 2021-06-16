@@ -188,7 +188,7 @@ async function zoo() {
     await $.wait(1000);
     if(!$.maxLevel)await takePostRequest('zoo_collectProduceScore');
     await $.wait(1000);
-    await takePostRequest('zoo_getTaskDetail');
+    if(!$.maxLevel) await takePostRequest('zoo_getTaskDetail');
     await $.wait(1000);
     //做任务
     for (let i = 0; i < $.taskList.length && $.secretp && !$.hotFlag && !$.maxLevel; i++) {
