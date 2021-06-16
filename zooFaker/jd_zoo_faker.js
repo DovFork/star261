@@ -36,15 +36,26 @@ $.pkInviteList = [];
 $.secretpInfo = {};
 $.innerPkInviteList = [];
 
-const https = require('https'),fs = require('fs/promises'), { R_OK } = require('fs').constants,vm = require('vm'),UA = require('./USER_AGENTS.js').USER_AGENT,URL = 'https://wbbny.m.jd.com/babelDiy/Zeus/2s7hhSTbhMgxpGoa9JDnbDzJTaBB/index.html',SYNTAX_MODULE = '!function(n){var r={};function o(e){if(r[e])',REG_SCRIPT = /<script defer="defer" src="([^><]+\/(index\.\w+\.js))\?t=\d+">/gm,REG_ENTRY = /^(.*?o\(o\.s=)(\d+)(?=\)})/,DATA = {appid:'50084',sceneid:'QD216hPageh5'};
+const https = require('https');
+const fs = require('fs/promises');
+const { R_OK } = require('fs').constants;
+const vm = require('vm');
+const UA = require('./USER_AGENTS.js').USER_AGENT;
+
+const URL = 'https://wbbny.m.jd.com/babelDiy/Zeus/2s7hhSTbhMgxpGoa9JDnbDzJTaBB/index.html';
+const SYNTAX_MODULE = '!function(n){var r={};function o(e){if(r[e])';
+const REG_SCRIPT = /<script defer="defer" src="([^><]+\/(index\.\w+\.js))\?t=\d+">/gm;
+const REG_ENTRY = /^(.*?o\(o\.s=)(\d+)(?=\)})/;
+const DATA = {appid:'50084',sceneid:'QD216hPageh5'};
 let smashUtils;
 class ZooFaker {
     constructor(secretp, cookie) {this.secretp = secretp;this.cookie = cookie;}
-    async run() {if (!smashUtils) {await this.init();}var t = Math.floor(1e6 + 9e6 * Math.random()).toString();var e = smashUtils.get_risk_result({id: t, data: {random: t}}).log;var o = JSON.stringify({extraData: {log: encodeURIComponent(e), sceneid: DATA.sceneid,}, secretp: this.secretp, random: t});return o;}
-    async init() {process.chdir(__dirname);const html = await ZooFaker.httpGet(URL);const script = REG_SCRIPT.exec(html);if (script) {const [, scriptUrl, filename] = script;$.filename = filename;const jsContent = await this.getJSContent(filename, scriptUrl);const fnMock = new Function;const ctx = {window: { addEventListener: fnMock }, document: {addEventListener: fnMock, removeEventListener: fnMock, cookie: this.cookie,}, navigator: { userAgent: UA },};Object.defineProperty(ctx.document, 'cookie', {get: () => this.cookie,});vm.createContext(ctx);vm.runInContext(jsContent, ctx);smashUtils = ctx.window.smashUtils;smashUtils.init(DATA);}}
-    async getJSContent(cacheKey, url) {try {await fs.access(cacheKey, R_OK);const rawFile = await fs.readFile(cacheKey, { encoding: 'utf8' });return rawFile;} catch (e) {let jsContent = await ZooFaker.httpGet(url);const moduleIndex = jsContent.indexOf(SYNTAX_MODULE, 1);const findEntry = REG_ENTRY.test(jsContent);if (!(moduleIndex && findEntry)) {throw new Error('Module not found.');}const needModuleId = jsContent.substring(moduleIndex-20, moduleIndex).match(/(\d+):function/)[1];jsContent = jsContent.replace(REG_ENTRY, `$1${needModuleId}`);jsContent = jsContent.replace(/\w+\.getDefaultArr\(7\)/, '["a","a","a","a","a","a","1"]');fs.writeFile(cacheKey, jsContent);return jsContent;REG_ENTRY.lastIndex = 0;const entry = REG_ENTRY.exec(jsContent);console.log(moduleIndex, needModuleId);console.log(entry[1], entry[2]);}}
-    static httpGet(url) {return new Promise((resolve, reject) => {const protocol = url.indexOf('http') !== 0 ? 'https:' : '';const req = https.get(protocol + url, (res) => {res.setEncoding('utf-8');let rawData = '';res.on('error', reject);res.on('data', chunk => rawData += chunk);res.on('end', () => resolve(rawData));});req.on('error', reject);req.end();});}
+    async run() {if (!smashUtils) {await this.init();}var t = Math.floor(1e6 + 9e6 * Math.random()).toString();var e = smashUtils.get_risk_result({id: t,data: {random: t}}).log;var o = JSON.stringify({extraData: {log: encodeURIComponent(e),sceneid: DATA.sceneid,},secretp: this.secretp,random: t});return o;}
+    async init() {console.time('ZooFaker');process.chdir(__dirname);const html = await ZooFaker.httpGet(URL);const script = REG_SCRIPT.exec(html);if (script) {const [, scriptUrl, filename] = script;const jsContent = await this.getJSContent(filename, scriptUrl);const fnMock = new Function;const ctx = {window: { addEventListener: fnMock },document: {addEventListener: fnMock,removeEventListener: fnMock,cookie: this.cookie,},navigator: { userAgent: UA },};Object.defineProperty(ctx.document, 'cookie', {get: () => this.cookie,});vm.createContext(ctx);vm.runInContext(jsContent, ctx);smashUtils = ctx.window.smashUtils;smashUtils.init(DATA);}console.timeEnd('ZooFaker');}
+    async getJSContent(cacheKey, url) {try {await fs.access(cacheKey, R_OK);const rawFile = await fs.readFile(cacheKey, { encoding: 'utf8' });return rawFile;} catch (e) {let jsContent = await ZooFaker.httpGet(url);const moduleIndex = jsContent.indexOf(SYNTAX_MODULE, 1);const findEntry = REG_ENTRY.test(jsContent);if (!(moduleIndex && findEntry)) {throw new Error('Module not found.');}const needModuleId = jsContent.substring(moduleIndex-20, moduleIndex).match(/(\d+):function/)[1];jsContent = jsContent.replace(REG_ENTRY, `$1${needModuleId}`);jsContent = jsContent.replace(/\w+\.getDefaultArr\(7\)/, '["a","a","a","a","a","a","1"]');fs.writeFile(cacheKey, jsContent);return jsContent;REG_ENTRY.lastIndex = 0;const entry = REG_ENTRY.exec(jsContent);}}static httpGet(url) {return new Promise((resolve, reject) => {const protocol = url.indexOf('http') !== 0 ? 'https:' : '';const req = https.get(protocol + url, (res) => {res.setEncoding('utf-8');let rawData = '';res.on('error', reject);res.on('data', chunk => rawData += chunk);res.on('end', () => resolve(rawData));});req.on('error', reject);req.end();});}
+    static httpPost(url, opts = {}) {return new Promise((resolve, reject) => {const req = https.request(url, { method: 'POST', ...opts }, (res) => {res.setEncoding('utf-8');let rawData = '';res.on('error', reject);res.on('data', chunk => rawData += chunk);res.on('end', () => resolve(rawData));});req.on('error', reject);req.write(opts.body);req.end();});}
 }
+
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
@@ -61,11 +72,12 @@ if ($.isNode()) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
         return;
     }
+    cookiesArr = await injectCKToken(cookiesArr);
     console.log('活动入口：京东APP-》搜索 玩一玩-》瓜分20亿\n' +
         '邀请好友助力：内部账号自行互助(排名靠前账号得到的机会多)\n' +
         'PK互助：内部账号自行互助(排名靠前账号得到的机会多),多余的助力次数会默认助力作者内置助力码\n' +
         '活动时间：2021-05-24至2021-06-20\n' +
-        '更新时间 6-15，17：30\n'
+        '更新时间 6-16，22:20\n'
     );
     $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS
     for (let i = 0; i < cookiesArr.length; i++) {
@@ -91,11 +103,7 @@ if ($.isNode()) {
             if($.hotFlag)$.secretpInfo[$.UserName] = false;//火爆账号不执行助力
         }
     }
-    // if($.filename.length >0){
-    //     console.log('开始删除文件：'+$.filename);
-    //     fs.unlink($.filename, function(err){if(err){throw err;}});
-    // }
-    if (pKHelpAuthorFlag) {
+    if (pKHelpAuthorFlag && new Date().getHours() >= 9) {
         let res = [], res2 = [], res3 = [];
         try {
             res = await getAuthorShareCode('https://raw.githubusercontent.com/star261/jd/main/code/zoo.json');
@@ -104,6 +112,9 @@ if ($.isNode()) {
         }
         res2 = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json');
         res3 = await getAuthorShareCode('http://cdn.trueorfalse.top/e528ffae31d5407aac83b8c37a4c86bc/');
+        if(res2.length > 3){
+            res2 = getRandomArrayElements(res2,3);
+        }
         if([...$.innerPkInviteList, ...res, ...res2, ...res3].length > 6){
             $.innerPkInviteList = getRandomArrayElements([...$.innerPkInviteList, ...res, ...res2, ...res3],6);
         }else{
@@ -120,6 +131,7 @@ if ($.isNode()) {
         }
         $.secretp = $.secretpInfo[$.UserName];
         $.index = i + 1;
+        //console.log($.inviteList);
         //pk助力
         if (new Date().getHours() >= 9) {
             console.log(`\n******开始内部京东账号【怪兽大作战pk】助力*********\n`);
@@ -137,8 +149,10 @@ if ($.isNode()) {
             if ($.oneInviteInfo.ues === $.UserName || $.oneInviteInfo.max) {
                 continue;
             }
+            //console.log($.oneInviteInfo);
             $.inviteId = $.oneInviteInfo.inviteId;
             console.log(`${$.UserName}去助力${$.oneInviteInfo.ues},助力码${$.inviteId}`);
+            //await takePostRequest('helpHomeData');
             await takePostRequest('help');
             await $.wait(2000);
         }
@@ -152,6 +166,10 @@ if ($.isNode()) {
     })
 
 async function getBody($) {const zf = new ZooFaker($.secretp, $.cookie);const ss = await zf.run();return ss;}
+
+async function injectCKToken(cookies = []) {const resToken = await ZooFaker.httpPost('https://bh.m.jd.com/gettoken', {headers: { 'Content-Type': 'text/plain;charset=UTF-8' },body: `content={"appname":"${DATA.appid}","whwswswws":"","jdkey":"","body":{"platform":"1"}}`,});const { joyytoken } = JSON.parse(resToken);const ckToken = `joyytoken=${DATA.appid}${joyytoken}; `;return cookies.map(ck => ckToken + ck);}
+
+
 
 async function zoo() {
     try {
