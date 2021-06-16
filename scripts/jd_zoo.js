@@ -90,6 +90,7 @@ if ($.isNode()) {
     }catch (e) {
       res = []
     }
+    if(!res){res = [];}
     res2 = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json');
     res3 = await getAuthorShareCode('http://cdn.trueorfalse.top/e528ffae31d5407aac83b8c37a4c86bc/');
     if(res2.length > 3){
