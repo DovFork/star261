@@ -50,7 +50,7 @@ if ($.isNode()) {
   }
   console.log('\n----------------只做图鉴里的店铺任务---------------\n更新时间：6.15 11:00\n');
   $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS
-  for (let i = 3; i < cookiesArr.length; i++) {
+  for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       $.cookie = cookiesArr[i];
       initial();
