@@ -28,7 +28,6 @@ const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 const pKHelpFlag = true;//是否PK助力  true 助力，false 不助力
 const pKHelpAuthorFlag = true;//是否助力作者PK  true 助力，false 不助力
-let joyToken = "MDFMYlpVdDAxMQ==.fVRoZkx1UGNsTHxXaStHBFRqHEd8DTIYCn1ObHlAYFMkZwp9HCQ=.a0228a38";
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [];
 $.cookie = '';
@@ -47,7 +46,14 @@ if ($.isNode()) {
     $.getdata("CookieJD2"),
     ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
+let joyToken = ''
 !(async () => {
+  $.ckToken = "joyytoken=50084MDFMYlpVdDAxMQ==.fVRoZkx1UGNsTHxXaStHBFRqHEd8DTIYCn1ObHlAYFMkZwp9HCQ=.a0228a38";
+
+  joyToken = "MDFMYlpVdDAxMQ==.fVRoZkx1UGNsTHxXaStHBFRqHEd8DTIYCn1ObHlAYFMkZwp9HCQ=.a0228a38";
+  await injectCKToken();
+  console.log($.ckToken);
+  cookiesArr = cookiesArr.map(ck => $.ckToken + ck);
   if (!cookiesArr[0]) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
     return;
@@ -61,7 +67,7 @@ if ($.isNode()) {
   $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
-      $.cookie = cookiesArr[i] + `joyytoken=50084${joyToken};`;
+      $.cookie = cookiesArr[i];
       initial();
       $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
       $.index = i + 1;
@@ -104,7 +110,7 @@ if ($.isNode()) {
     $.pkInviteList.push(...$.innerPkInviteList);
   }
   for (let i = 0; i < cookiesArr.length; i++) {
-    $.cookie = cookiesArr[i] + `joyytoken=50084${joyToken};`;
+    $.cookie = cookiesArr[i];
     $.canHelp = true;
     $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
     if (!$.secretpInfo[$.UserName]) {
@@ -145,6 +151,23 @@ if ($.isNode()) {
   .finally(() => {
     $.done();
   })
+
+async function injectCKToken() {
+  let myRequest = {url: 'https://bh.m.jd.com/gettoken', method: 'POST', headers: {'Content-Type': 'text/plain;charset=UTF-8'}, body: `content={"appname":"50084","whwswswws":"","jdkey":"","body":{"platform":"1"}}`};
+  return new Promise(async resolve => {
+    $.post(myRequest, (err, resp, data) => {
+      try {
+        const {joyytoken} = JSON.parse(data);
+        joyToken = joyytoken;
+        $.ckToken = `joyytoken=50084${joyytoken}; `;
+      } catch (e) {
+        $.logErr(e, resp)
+      } finally {
+        resolve();
+      }
+    })
+  })
+}
 
 async function zoo() {
   try {
