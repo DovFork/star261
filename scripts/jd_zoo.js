@@ -47,6 +47,7 @@ if ($.isNode()) {
     ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 let joyToken = ''
+let allMessage = '';
 !(async () => {
   $.ckToken = "joyytoken=50084MDFMYlpVdDAxMQ==.fVRoZkx1UGNsTHxXaStHBFRqHEd8DTIYCn1ObHlAYFMkZwp9HCQ=.a0228a38";
   joyToken = "MDFMYlpVdDAxMQ==.fVRoZkx1UGNsTHxXaStHBFRqHEd8DTIYCn1ObHlAYFMkZwp9HCQ=.a0228a38";
@@ -88,6 +89,11 @@ let joyToken = ''
       if($.hotFlag)$.secretpInfo[$.UserName] = false;//火爆账号不执行助力
     }
   }
+
+  if(allMessage){
+    await notify.sendNotify('动物联盟瓜分',allMessage);
+  }
+  return ;
   // if (pKHelpAuthorFlag && new Date().getHours() >= 9) {
   //   let res = [], res2 = [], res3 = [];
   //   try {
@@ -187,6 +193,10 @@ async function zoo() {
     $.userInfo =$.homeData.result.homeMainInfo
     console.log(`\n\n当前分红：${$.userInfo.raiseInfo.redNum}份，当前等级:${$.userInfo.raiseInfo.scoreLevel}\n当前金币${$.userInfo.raiseInfo.remainScore}，下一关需要${$.userInfo.raiseInfo.nextLevelScore - $.userInfo.raiseInfo.curLevelStartScore}\n\n`);
     await takePostRequest('zoo_pk_receiveGroupReward');//领取PK红包
+    await $.wait(2000);
+    await takePostRequest('zoo_mainRedPacket');//领取PK红包
+
+    return ;
     if(Number($.userInfo.raiseInfo.scoreLevel) === 30){
       $.maxLevel = true;
       console.log('已满级');
@@ -566,6 +576,10 @@ async function takePostRequest(type) {
       body = `functionId=${type}&body={}&client=wh5&clientVersion=1.0.0`;
       myRequest = await getPostRequest(`zoo_pk_receiveGroupReward`, body);
       break;
+    case 'zoo_mainRedPacket':
+      body = `functionId=zoo_mainRedPacket&body={}&client=wh5&clientVersion=1.0.0&uuid=8888`;
+      myRequest = await getPostRequest(`zoo_mainRedPacket`, body);
+      break;
     default:
       console.log(`错误${type}`);
   }
@@ -806,6 +820,22 @@ async function dealReturn(type, data) {
         }
       } else {
         console.log(`领取PK奖励异常:${JSON.stringify(data)}`);
+      }
+      break;
+    case 'zoo_mainRedPacket':
+      if (data.code === 0) {
+        if (data.data.bizCode === 0) {
+          console.log(`瓜分红包:共${data.data.result.value}元\n`);
+          if (parseInt(data.data.result.value)) {
+            $.msg($.name, `京东账号 ${$.index} ${$.UserName || $.nickName}\n瓜分红包:共${data.data.result.value}元`);
+            allMessage +=  `京东账号 ${$.index} ${$.UserName || $.nickName}\n瓜分红包:共${data.data.result.value}元\n`;
+            //if ($.isNode()) await notify.sendNotify($.name, `京东账号 ${$.index} ${$.UserName || $.nickName}\n领取PK红包成功:共${data.data.result.value}元`)
+          }
+        } else {
+          console.log(`瓜分红包失败:${data.data.bizMsg}\n`)
+        }
+      } else {
+        console.log(`瓜分红包异常:${JSON.stringify(data)}`);
       }
       break;
     default:
