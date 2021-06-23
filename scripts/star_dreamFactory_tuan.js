@@ -80,7 +80,10 @@ if ($.isNode()) {Object.keys(jdCookieNode).forEach((item) => {cookiesArr.push(jd
       $.index = i + 1;
       cookie = cookiesArr[i];
       $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-      if($.jdFactoryHelpList[$.UserName]){continue;}
+      if($.jdFactoryHelpList[$.UserName]){
+        console.log(`${$.UserName},参团次数已用完`)
+        continue;
+      }
       $.isLogin = true;
       $.canHelp = true;//能否参团
       await TotalBean();
