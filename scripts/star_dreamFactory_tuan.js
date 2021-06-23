@@ -34,11 +34,11 @@ if ($.isNode()) {Object.keys(jdCookieNode).forEach((item) => {cookiesArr.push(jd
   $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
   await requestAlgo();
   await getTuanActiveId();
-  if(!tuanActiveId){console.log(`获取团活动ID失败`);return ;}
-  let nowTime = getCurrDate();
-  let jdFactoryTime = $.getdata('jdFactoryTime');
-  if (!jdFactoryTime || nowTime !== jdFactoryTime) {$.setdata(nowTime, 'jdFactoryTime');$.setdata({}, 'jdFactoryHelpList');}
-  $.jdFactoryHelpList = $.getdata('jdFactoryHelpList');
+  if(!tuanActiveId){console.log(`未能获取到有效的团活动ID`);return ;}
+  //let nowTime = getCurrDate();
+  // let jdFactoryTime = $.getdata('jdFactoryTime');
+  // if (!jdFactoryTime || nowTime !== jdFactoryTime) {$.setdata(nowTime, 'jdFactoryTime');$.setdata({}, 'jdFactoryHelpList');}
+  // $.jdFactoryHelpList = $.getdata('jdFactoryHelpList');
   if (!cookiesArr[0]) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
     return;
@@ -80,10 +80,10 @@ if ($.isNode()) {Object.keys(jdCookieNode).forEach((item) => {cookiesArr.push(jd
       $.index = i + 1;
       cookie = cookiesArr[i];
       $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-      if($.jdFactoryHelpList[$.UserName]){
-        console.log(`${$.UserName},参团次数已用完`)
-        continue;
-      }
+      // if($.jdFactoryHelpList[$.UserName]){
+      //   console.log(`${$.UserName},参团次数已用完`)
+      //   continue;
+      // }
       $.isLogin = true;
       $.canHelp = true;//能否参团
       await TotalBean();
@@ -137,9 +137,25 @@ async function getTuanActiveId() {
     $.get(myRequest, (err, resp, data) => {
       try {
         data = data && data.match(/window\._CONFIG = (.*) ;var __getImgUrl/);
-        if(data){
-          data = JSON.parse(data[1]);const link = data[0].skinConfig[0].adConfig[0].link;
-          if(link.match(/activeId=(.*),/) && link.match(/activeId=(.*),/)[1]){tuanActiveId = link.match(/activeId=(.*),/)[1];console.log('获取到的团活动ID：'+tuanActiveId);}
+        if (data) {
+          data = JSON.parse(data[1]);
+          const tuanConfigs = (data[0].skinConfig[0].adConfig || []).filter(vo => !!vo && vo['channel'] === 'h5');
+          if (tuanConfigs && tuanConfigs.length) {
+            for (let item of tuanConfigs) {
+              const start = item.start;
+              const end = item.end;
+              const link = item.link;
+              if (new Date(item.end).getTime() > Date.now()) {
+                if (link && link.match(/activeId=(.*),/) && link.match(/activeId=(.*),/)[1]) {
+                  console.log(`\n获取团活动ID成功: ${link.match(/activeId=(.*),/)[1]}\n有效时段：${start} - ${end}`);
+                  tuanActiveId = link.match(/activeId=(.*),/)[1];
+                  break
+                }
+              } else {
+                  tuanActiveId = '';
+              }
+            }
+          }
         }
       } catch (e) {
         console.log(data);$.logErr(e, resp);
@@ -370,14 +386,14 @@ function JoinTuan(tuanId, stk = '_time,activeId,tuanId') {
             data = JSON.parse(data);
             if (data['ret'] === 0) {
               console.log(`参团成功：${JSON.stringify(data)}\n`);
-              $.jdFactoryHelpList[$.UserName] = $.UserName;
-              $.setdata($.jdFactoryHelpList, 'jdFactoryHelpList');
+              //$.jdFactoryHelpList[$.UserName] = $.UserName;
+              //$.setdata($.jdFactoryHelpList, 'jdFactoryHelpList');
               $.canHelp = false;
             } else if (data['ret'] === 10005 || data['ret'] === 10206) {
               //火爆，或者今日参团机会已耗尽
               console.log(`参团失败：${JSON.stringify(data)}\n`);
-              $.jdFactoryHelpList[$.UserName] = $.UserName;
-              $.setdata($.jdFactoryHelpList, 'jdFactoryHelpList');
+              //$.jdFactoryHelpList[$.UserName] = $.UserName;
+              //$.setdata($.jdFactoryHelpList, 'jdFactoryHelpList');
               $.canHelp = false;
             } else if(data['ret'] === 10209){
               $.tuanMax = true;
