@@ -177,7 +177,10 @@ async function main(){
       runFlag = true;
     }
   }
-  if(runFlag) await takePostRequest('olympicgames_home');
+  if(runFlag) {
+    await takePostRequest('olympicgames_home');
+    $.userInfo =$.homeData.result.userActBaseInfo;
+  }
   if (runFlag && Number($.userInfo.poolCurrency) >= Number($.userInfo.exchangeThreshold)) {
     console.log(`满足升级条件，去升级`);
     await $.wait(1000);
@@ -303,7 +306,6 @@ async function takePostRequest(type) {
     case 'help':
     case 'byHelp':
       body = await getPostBody(type);
-      console.log(body);
       myRequest = await getPostRequest( body);
       break;
     case 'olympicgames_startTraining':
@@ -412,14 +414,17 @@ async function dealReturn(type, data) {
           console.log(`助力成功`);
         }
       }else if(data.data && data.data.bizMsg){
-        if(data.data.bizMsg.indexOf('今天用完所有') > -1){
+        if(data.data.bizCode === -405){
           $.canHelp = false;
+        }
+        if(data.data.bizCode === -404){
+          $.oneInviteInfo.max = true;
         }
         console.log(data.data.bizMsg);
       }else{
         console.log(JSON.stringify(data));
       }
-      console.log(`助力结果\n${JSON.stringify(data)}`)
+      //console.log(`助力结果\n${JSON.stringify(data)}`)
       break;
     case 'olympicgames_collectCurrency':
       if (data.code === 0 && data.data && data.data.result) {
