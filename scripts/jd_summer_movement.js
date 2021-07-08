@@ -147,7 +147,6 @@ if ($.isNode()) {
       await $.wait(2000);
     }
   }
-
 })().catch((e) => {$.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')}).finally(() => {$.done();})
 
 
@@ -305,6 +304,7 @@ async function takePostRequest(type) {
     case 'help':
     case 'byHelp':
       body = await getPostBody(type);
+      console.log(body);
       myRequest = await getPostRequest( body);
       break;
     case 'olympicgames_startTraining':
@@ -318,8 +318,10 @@ async function takePostRequest(type) {
     default:
       console.log(`错误${type}`);
   }
-  if( type === 'add_car' || type === 'help' ||  type === 'byHelp'){
+  if( type === 'add_car' ){
     myRequest['url'] = `https://api.m.jd.com/client.action?advId=olympicgames_doTaskDetail`;
+  }else if( type === 'help' ||  type === 'byHelp'){
+    myRequest['url'] = `https://api.m.jd.com/client.action?advId=olympicgames_assist`;
   }else{
     myRequest['url'] = `https://api.m.jd.com/client.action?advId=${type}`;
   }
@@ -495,8 +497,8 @@ async function getPostBody(type) {
   return new Promise(async resolve => {
     let taskBody = '';
     try {
-      const log = await getBody($)
-      if (type === 'help' || type === 'byhelp') {
+      const log = await getBody($);
+      if (type === 'help' || type === 'byHelp') {
         taskBody = `functionId=olympicgames_assist&body=${JSON.stringify({"inviteId":$.inviteId,"type": "confirm","ss" :log})}&client=wh5&clientVersion=1.0.0&uuid=${uuid}&appid=o2_act`
       } else if (type === 'olympicgames_collectCurrency') {
         taskBody = `functionId=olympicgames_collectCurrency&body=${JSON.stringify({"type":$.collectId,"ss" : log})}&client=wh5&clientVersion=1.0.0&uuid=${uuid}&appid=o2_act`;
