@@ -312,7 +312,7 @@ async function takePostRequest(type) {
       myRequest = await getPostRequest( body);
       break;
     case 'olypicgames_guradHome':
-      body = `functionId=olypicgames_guradHome&body={}&client=wh5&clientVersion=1.0.0&uuid=${uuid}&appid=${$.appid}`;
+      body = `functionId=olypicgames_guradHome&body={}&client=wh5&clientVersion=1.0.0&uuid=${uuid}&appid=o2_act`;
       myRequest = await getPostRequest( body);
       break
     default:
