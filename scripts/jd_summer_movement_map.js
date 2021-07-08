@@ -191,6 +191,22 @@ async function main(){
         }
       }
     }
+    await $.wait(1000);
+    let boxLotteryNum = $.shopResult.boxLotteryNum;
+    for (let j = 0; j < boxLotteryNum; j++) {
+      console.log(`开始第${j+1}次拆盒`)
+      //抽奖
+      await takePostRequest('olympicgames_boxShopLottery');
+      await $.wait(3000);
+    }
+    // let wishLotteryNum = $.shopResult.wishLotteryNum;
+    // for (let j = 0; j < wishLotteryNum; j++) {
+    //   console.log(`开始第${j+1}次能量抽奖`)
+    //   //抽奖
+    //   await takePostRequest('zoo_wishShopLottery');
+    //   await $.wait(3000);
+    // }
+    await $.wait(3000);
   }
 }
 
@@ -226,6 +242,10 @@ async function takePostRequest(type) {
       break;
     case 'olympicgames_bdDoTask':
       body = await getPostBody(type);
+      myRequest = await getPostRequest(body);
+      break;
+    case 'olympicgames_boxShopLottery':
+      body = `functionId=olympicgames_boxShopLottery&body={"shopSign":"${$.shopSign}"}&client=wh5&clientVersion=1.0.0&uuid=${uuid}&appid=o2_act`;
       myRequest = await getPostRequest(body);
       break;
     default:
@@ -304,6 +324,24 @@ async function dealReturn(type, data) {
       }
       //console.log(JSON.stringify(data));
       break;
+    case 'olympicgames_boxShopLottery':
+      let result = data.data.result;
+      switch (result.awardType) {
+        case 8:
+          console.log(`获得金币：${result.rewardScore}`);
+          break;
+        case 5:
+          console.log(`获得：adidas能量`);
+          break;
+        case 2:
+        case 3:
+          console.log(`获得优惠券：${result.couponInfo.usageThreshold} 优惠：${result.couponInfo.quota}，${result.couponInfo.useRange}`);
+          break;
+        default:
+          console.log(`抽奖获得未知`);
+          console.log(JSON.stringify(data));
+      }
+      break
     default:
       console.log(`未判断的异常${type}`);
   }
