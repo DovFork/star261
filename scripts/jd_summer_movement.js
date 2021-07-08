@@ -107,29 +107,6 @@ if ($.isNode()) {
       }
     }
   }
-  if(helpAuthorFlag){
-    let res = [];
-    res = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json');
-    if(!res){
-      res = [];
-    }else{
-      res = getRandomArrayElements(res,res.length);
-    }
-    if(res.length >0){
-      console.log(`\n******开始助力作者百元守卫战*********\n`);
-      for (let i = 0; i < cookiesArr.length; i++) {
-        $.cookie = cookiesArr[i];
-        $.canHelp = true;
-        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-        for (let i = 0; i < res.length && $.canHelp; i++) {
-          $.inviteId = res[i];
-          console.log(`${$.UserName} 去助力 ${$.inviteId}`);
-          await takePostRequest('byHelp');
-          await $.wait(1000);
-        }
-      }
-    }
-  }
   if ($.inviteList.length > 0) console.log(`\n******开始内部京东账号【邀请好友助力】*********\n`);
   for (let i = 0; i < cookiesArr.length; i++) {
     $.cookie = cookiesArr[i];
@@ -145,6 +122,28 @@ if ($.isNode()) {
       console.log(`${$.UserName}去助力${$.oneInviteInfo.ues},助力码${$.inviteId}`);
       await takePostRequest('help');
       await $.wait(2000);
+    }
+  }
+  if(helpAuthorFlag){
+    let res = [],res2 = [];
+    res = await getAuthorShareCode('http://cdn.trueorfalse.top/265ec75af39345ec922e57105206b4b7/');
+    res2 = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json');
+    if(!res){res = [];}
+    if(!res2){res2 = [];}
+    let allCodeList = getRandomArrayElements([ ...res, ...res2],[ ...res, ...res2].length);
+    if(allCodeList.length >0){
+      console.log(`\n******开始助力作者百元守卫战*********\n`);
+      for (let i = 0; i < cookiesArr.length; i++) {
+        $.cookie = cookiesArr[i];
+        $.canHelp = true;
+        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+        for (let i = 0; i < allCodeList.length && $.canHelp; i++) {
+          $.inviteId = allCodeList[i];
+          console.log(`${$.UserName} 去助力 ${$.inviteId}`);
+          await takePostRequest('byHelp');
+          await $.wait(1000);
+        }
+      }
     }
   }
 })().catch((e) => {$.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')}).finally(() => {$.done();})
@@ -391,11 +390,15 @@ async function dealReturn(type, data) {
       break;
     case 'add_car':
       if (data.code === 0) {
-        let acquiredScore = data.data.result.acquiredScore;
-        if(Number(acquiredScore) > 0){
-          console.log(`加购成功,获得金币:${acquiredScore}`);
+        if(data.data && data.data.result && data.data.result.acquiredScore){
+          let acquiredScore = data.data.result.acquiredScore;
+          if(Number(acquiredScore) > 0){
+            console.log(`加购成功,获得金币:${acquiredScore}`);
+          }else{
+            console.log(`加购成功`);
+          }
         }else{
-          console.log(`加购成功`);
+          console.log(JSON.stringify(data));
         }
       }else{
         console.log(`加购失败`);
