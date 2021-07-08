@@ -1,10 +1,12 @@
 /**
  *  燃动夏季
  *  25 0,6-23/3 * * *
+ *  脚本会助力作者百元守卫战 参数helpAuthorFlag 默认助力
  * */
 const $ = new Env('燃动夏季');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+const helpAuthorFlag = true;//是否助力作者SH  true 助力，false 不助力
 const https = require('https');
 const fs = require('fs/promises');
 const { R_OK } = require('fs').constants;
@@ -82,6 +84,7 @@ if ($.isNode()) {
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       $.cookie = cookiesArr[i];
+      uuid = getUUID();
       $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
       $.index = i + 1;
       $.isLogin = true;
@@ -104,7 +107,29 @@ if ($.isNode()) {
       }
     }
   }
-
+  if(helpAuthorFlag){
+    let res = [];
+    res = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json');
+    if(!res){
+      res = [];
+    }else{
+      res = getRandomArrayElements(res,res.length);
+    }
+    if(res.length >0){
+      console.log(`\n******开始助力作者百元守卫战*********\n`);
+      for (let i = 0; i < cookiesArr.length; i++) {
+        $.cookie = cookiesArr[i];
+        $.canHelp = true;
+        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+        for (let i = 0; i < res.length && $.canHelp; i++) {
+          $.inviteId = res[i];
+          console.log(`${$.UserName} 去助力 ${$.inviteId}`);
+          await takePostRequest('byHelp');
+          await $.wait(1000);
+        }
+      }
+    }
+  }
   if ($.inviteList.length > 0) console.log(`\n******开始内部京东账号【邀请好友助力】*********\n`);
   for (let i = 0; i < cookiesArr.length; i++) {
     $.cookie = cookiesArr[i];
@@ -160,12 +185,15 @@ async function main(){
     await $.wait(1000);
     await takePostRequest('olympicgames_receiveCash');
   }
-
   await $.wait(1000);
   await takePostRequest('olympicgames_getTaskDetail');
   await $.wait(1000);
   console.log(`开始做任务`)
   await doTask();
+  await $.wait(1000);
+  console.log('获取百元守卫战信息')
+  $.guradHome = {};
+  await takePostRequest('olypicgames_guradHome');
 }
 
 async function getBody($) {const zf = new MovementFaker($.cookie);const ss = await zf.run();return ss;}
@@ -234,6 +262,10 @@ async function doTask(){
           await $.wait(3000);
         }
       }
+    }else if($.oneTask.status !== 1){
+      console.log(`任务：${$.oneTask.taskName}，已完成`);
+    }else{
+      console.log(`任务：${$.oneTask.taskName}，不执行`);
     }
   }
 }
@@ -271,6 +303,7 @@ async function takePostRequest(type) {
       myRequest = await getPostRequest(body);
       break;
     case 'help':
+    case 'byHelp':
       body = await getPostBody(type);
       myRequest = await getPostRequest( body);
       break;
@@ -278,10 +311,14 @@ async function takePostRequest(type) {
       body = await getPostBody(type);
       myRequest = await getPostRequest( body);
       break;
+    case 'olypicgames_guradHome':
+      body = `functionId=olypicgames_guradHome&body={}&client=wh5&clientVersion=1.0.0&uuid=${uuid}&appid=${$.appid}`;
+      myRequest = await getPostRequest( body);
+      break
     default:
       console.log(`错误${type}`);
   }
-  if( type === 'add_car' || type === 'help'){
+  if( type === 'add_car' || type === 'help' ||  type === 'byHelp'){
     myRequest['url'] = `https://api.m.jd.com/client.action?advId=olympicgames_doTaskDetail`;
   }else{
     myRequest['url'] = `https://api.m.jd.com/client.action?advId=${type}`;
@@ -364,6 +401,7 @@ async function dealReturn(type, data) {
       }
       break
     case 'help':
+    case 'byHelp':
       if(data.data && data.data.bizCode === 0){
         if(data.data.result.hongBaoVO && data.data.result.hongBaoVO.withdrawCash){
           console.log(`助力成功`);
@@ -384,10 +422,6 @@ async function dealReturn(type, data) {
       }else{
         console.log(JSON.stringify(data));
       }
-      if(data.code === 0 && data.data && data.data.bizCode === -1002){
-        //$.hotFlag = true;:wq
-        //console.log(`该账户脚本执行任务火爆，暂停执行任务，请手动做任务或者等待解决脚本火爆问题`)
-      }
       break;
     case 'olympicgames_startTraining':
       if (data.code === 0 && data.data && data.data.result) {
@@ -396,40 +430,19 @@ async function dealReturn(type, data) {
         console.log(JSON.stringify(data));
       }
       break;
+    case 'olypicgames_guradHome':
+      //console.log(JSON.stringify(data));
+      if (data.data && data.data.result && data.data.bizCode === 0) {
+        console.log(`百元守卫战互助码：${ data.data.result.inviteId || '助力已满，获取助力码失败'}`);
+        $.guradHome = data.data;
+      }else {
+        console.log(JSON.stringify(data));
+      }
+      break;
     default:
       console.log(`未判断的异常${type}`);
   }
 }
-function takeGetRequest(){
-  return new Promise(async resolve => {
-    $.get({
-      url:`https://ms.jr.jd.com/gw/generic/mission/h5/m/finishReadMission?reqData={%22missionId%22:%22${$.taskId}%22,%22readTime%22:8}`,
-      headers:{
-        'Origin' : `https://prodev.m.jd.com`,
-        'Cookie': $.cookie,
-        'Connection' : `keep-alive`,
-        'Accept' : `*/*`,
-        'Referer' : `https://prodev.m.jd.com`,
-        'Host' : `ms.jr.jd.com`,
-        'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
-        'Accept-Encoding' : `gzip, deflate, br`,
-        'Accept-Language' : `zh-cn`
-      }
-    }, (err, resp, data) => {
-      try {
-        data = JSON.parse(data);
-        if (data.resultCode === 0) {
-          console.log(`任务完成`);
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve();
-      }
-    })
-  })
-}
-
 //领取奖励
 function callbackResult(info) {
   return new Promise((resolve) => {
@@ -483,7 +496,7 @@ async function getPostBody(type) {
     let taskBody = '';
     try {
       const log = await getBody($)
-      if (type === 'help') {
+      if (type === 'help' || help === 'byhelp') {
         taskBody = `functionId=olympicgames_assist&body=${JSON.stringify({"inviteId":$.inviteId,"type": "confirm","ss" :log})}&client=wh5&clientVersion=1.0.0&uuid=${uuid}&appid=o2_act`
       } else if (type === 'olympicgames_collectCurrency') {
         taskBody = `functionId=olympicgames_collectCurrency&body=${JSON.stringify({"type":$.collectId,"ss" : log})}&client=wh5&clientVersion=1.0.0&uuid=${uuid}&appid=o2_act`;
@@ -502,6 +515,16 @@ async function getPostBody(type) {
     }
   })
 }
+function getUUID() {
+  var n = (new Date).getTime();
+  let uuid="xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
+  uuid = uuid.replace(/[xy]/g, function (e) {
+    var t = (n + 16 * Math.random()) % 16 | 0;
+    return n = Math.floor(n / 16),
+      ("x" == e ? t : 3 & t | 8).toString(16)
+  }).replace(/-/g, "")
+  return uuid
+}
 /**
  * 随机从一数组里面取
  * @param arr
@@ -518,7 +541,7 @@ function getRandomArrayElements(arr, count) {
   }
   return shuffled.slice(min);
 }
-function getAuthorShareCode(url = "http://cdn.annnibb.me/eb6fdc36b281b7d5eabf33396c2683a2.json") {
+function getAuthorShareCode(url) {
   return new Promise(async resolve => {
     const options = {
       "url": `${url}?${new Date()}`,
