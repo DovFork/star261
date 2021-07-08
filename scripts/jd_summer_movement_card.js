@@ -1,8 +1,9 @@
 /**
  *  燃动夏季
- *  25 0,6-23/3 * * *
+ *  一次性脚本，尝试领取会员奖励
+ *  如果你已经是会员，则会领取奖励成功，若不是会员，则需要手动卡开
  * */
-const $ = new Env('燃动夏季');
+const $ = new Env('燃动夏季领会员奖励');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 const https = require('https');
@@ -105,23 +106,6 @@ if ($.isNode()) {
     }
   }
 
-  if ($.inviteList.length > 0) console.log(`\n******开始内部京东账号【邀请好友助力】*********\n`);
-  for (let i = 0; i < cookiesArr.length; i++) {
-    $.cookie = cookiesArr[i];
-    $.canHelp = true;
-    $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-    $.index = i + 1;
-    for (let j = 0; j < $.inviteList.length && $.canHelp; j++) {
-      $.oneInviteInfo = $.inviteList[j];
-      if ($.oneInviteInfo.ues === $.UserName || $.oneInviteInfo.max) {
-        continue;
-      }
-      $.inviteId = $.oneInviteInfo.inviteId;
-      console.log(`${$.UserName}去助力${$.oneInviteInfo.ues},助力码${$.inviteId}`);
-      await takePostRequest('help');
-      await $.wait(2000);
-    }
-  }
 
 })().catch((e) => {$.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')}).finally(() => {$.done();})
 
@@ -154,18 +138,22 @@ async function main(){
       runFlag = true;
     }
   }
-  if(runFlag) await takePostRequest('olympicgames_home');
-  if (runFlag && Number($.userInfo.poolCurrency) >= Number($.userInfo.exchangeThreshold)) {
-    console.log(`满足升级条件，去升级`);
-    await $.wait(1000);
-    await takePostRequest('olympicgames_receiveCash');
-  }
-
   await $.wait(1000);
   await takePostRequest('olympicgames_getTaskDetail');
   await $.wait(1000);
   console.log(`开始做任务`)
   await doTask();
+  await $.wait(1000);
+  await takePostRequest('olympicgames_home');
+  bubbleInfos = $.homeData.result.bubbleInfos;
+  for(let item of bubbleInfos){
+    if(item.type != 7){
+      $.collectId = item.type
+      await takePostRequest('olympicgames_collectCurrency');
+      await $.wait(1000);
+      runFlag = true;
+    }
+  }
 }
 
 async function getBody($) {const zf = new MovementFaker($.cookie);const ss = await zf.run();return ss;}
@@ -174,63 +162,22 @@ async function doTask(){
   //做任务
   for (let i = 0; i < $.taskList.length; i++) {
     $.oneTask = $.taskList[i];
-    if ([1, 3, 5, 7, 9, 26].includes($.oneTask.taskType) && $.oneTask.status === 1) {
-      $.activityInfoList = $.oneTask.shoppingActivityVos || $.oneTask.brandMemberVos || $.oneTask.followShopVo || $.oneTask.browseShopVo;
+    if (($.oneTask.taskType === 21 || $.oneTask.taskType === 26) && $.oneTask.status === 1){
+      console.log(`尝试领取已经是会员的奖励`);
+      $.activityInfoList = $.oneTask.brandMemberVos ;
       for (let j = 0; j < $.activityInfoList.length; j++) {
         $.oneActivityInfo = $.activityInfoList[j];
         if ($.oneActivityInfo.status !== 1 || !$.oneActivityInfo.taskToken) {
           continue;
         }
         $.callbackInfo = {};
-        console.log(`做任务：${$.oneActivityInfo.title || $.oneActivityInfo.taskName || $.oneActivityInfo.shopName};等待完成`);
+        console.log(`做任务：${$.oneActivityInfo.title};等待完成`);
         await takePostRequest('olympicgames_doTaskDetail');
-        if ($.callbackInfo.code === 0 && $.callbackInfo.data && $.callbackInfo.data.result && $.callbackInfo.data.result.taskToken) {
-          console.log(`等待8秒`);
-          await $.wait(8000);
-          let sendInfo = encodeURIComponent(`{"dataSource":"newshortAward","method":"getTaskAward","reqParams":"{\\"taskToken\\":\\"${$.callbackInfo.data.result.taskToken}\\"}","sdkVersion":"1.0.0","clientLanguage":"zh"}`)
-          await callbackResult(sendInfo)
-        } else if ($.oneTask.taskType === 5 || $.oneTask.taskType === 3 || $.oneTask.taskType === 26) {
-          await $.wait(2000);
+        if($.callbackInfo.code === 0 && $.callbackInfo.data && $.callbackInfo.data.bizCode === 0){
           console.log(`任务完成`);
-        } else {
-          console.log($.callbackInfo);
-          console.log(`任务失败`);
-          await $.wait(3000);
-        }
-      }
-    } else if ($.oneTask.taskType === 2 && $.oneTask.status === 1 && $.oneTask.scoreRuleVos[0].scoreRuleType === 2){
-      console.log(`做任务：${$.oneTask.taskName};等待完成 (实际不会添加到购物车)`);
-      $.taskId = $.oneTask.taskId;
-      $.feedDetailInfo = {};
-      await takePostRequest('olympicgames_getFeedDetail');
-      let productList = $.feedDetailInfo.productInfoVos;
-      let needTime = Number($.feedDetailInfo.maxTimes) - Number($.feedDetailInfo.times);
-      for (let j = 0; j < productList.length && needTime > 0; j++) {
-        if(productList[j].status !== 1){
-          continue;
-        }
-        $.taskToken = productList[j].taskToken;
-        console.log(`加购：${productList[j].skuName}`);
-        await takePostRequest('add_car');
-        await $.wait(1500);
-        needTime --;
-      }
-    }else if ($.oneTask.taskType === 2 && $.oneTask.status === 1 && $.oneTask.scoreRuleVos[0].scoreRuleType === 0){
-      $.activityInfoList = $.oneTask.productInfoVos ;
-      for (let j = 0; j < $.activityInfoList.length; j++) {
-        $.oneActivityInfo = $.activityInfoList[j];
-        if ($.oneActivityInfo.status !== 1 || !$.oneActivityInfo.taskToken) {
-          continue;
-        }
-        $.callbackInfo = {};
-        console.log(`做任务：浏览${$.oneActivityInfo.skuName};等待完成`);
-        await takePostRequest('olympicgames_doTaskDetail');
-        if ($.oneTask.taskType === 2) {
           await $.wait(2000);
-          console.log(`任务完成`);
-        } else {
-          console.log($.callbackInfo);
-          console.log(`任务失败`);
+        }else{
+          console.log(`任务失败,${$.callbackInfo.data.bizMsg || ''}`);
           await $.wait(3000);
         }
       }
