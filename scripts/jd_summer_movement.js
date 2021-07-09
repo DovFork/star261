@@ -126,8 +126,10 @@ if ($.isNode()) {
   }
   if(helpAuthorFlag){
     let res = [],res2 = [];
-    res = await getAuthorShareCode('http://cdn.trueorfalse.top/265ec75af39345ec922e57105206b4b7/');
-    res2 = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json');
+    try{
+      res = await getAuthorShareCode('http://cdn.trueorfalse.top/392b03aabdb848d0b7e5ae499ef24e35/');
+      res2 = await getAuthorShareCode(`https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json?${new Date()}`);
+    }catch (e) {}
     if(!res){res = [];}
     if(!res2){res2 = [];}
     let allCodeList = getRandomArrayElements([ ...res, ...res2],[ ...res, ...res2].length);
@@ -554,7 +556,7 @@ function getRandomArrayElements(arr, count) {
 function getAuthorShareCode(url) {
   return new Promise(async resolve => {
     const options = {
-      "url": `${url}?${new Date()}`,
+      "url": `${url}`,
       "timeout": 10000,
       "headers": {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
