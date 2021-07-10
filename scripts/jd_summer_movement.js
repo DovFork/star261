@@ -2,6 +2,7 @@
  *  燃动夏季
  *  25 0,6-23/2 * * *
  *  脚本会助力作者百元守卫战 参数helpAuthorFlag 默认助力
+ *  百元守卫战,先脚本内互助，多的助力会助力作者
  * */
 const $ = new Env('燃动夏季');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -63,6 +64,7 @@ class MovementFaker {
 }
 
 $.inviteList = [];
+$.byInviteList = [];
 let uuid = 8888;
 let cookiesArr = [];
 if ($.isNode()) {
@@ -133,30 +135,32 @@ if ($.isNode()) {
       await $.wait(2000);
     }
   }
+  let res = [],res2 = [];
   if(helpAuthorFlag){
-    let res = [],res2 = [];
     try{
       res = await getAuthorShareCode('http://cdn.trueorfalse.top/392b03aabdb848d0b7e5ae499ef24e35/');
       res2 = await getAuthorShareCode(`https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json?${new Date()}`);
     }catch (e) {}
     if(!res){res = [];}
     if(!res2){res2 = [];}
-    let allCodeList = getRandomArrayElements([ ...res, ...res2],[ ...res, ...res2].length);
-    if(allCodeList.length >0){
-      console.log(`\n******开始助力作者百元守卫战*********\n`);
-      for (let i = 0; i < cookiesArr.length; i++) {
-        $.cookie = cookiesArr[i];
-        $.canHelp = true;
-        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-        for (let i = 0; i < allCodeList.length && $.canHelp; i++) {
-          $.inviteId = allCodeList[i];
-          console.log(`${$.UserName} 去助力 ${$.inviteId}`);
-          await takePostRequest('byHelp');
-          await $.wait(1000);
-        }
+  }
+  let allCodeList = getRandomArrayElements([ ...res, ...res2],[ ...res, ...res2].length);
+  allCodeList=[...$.byInviteList,...allCodeList];
+  if(allCodeList.length >0){
+    console.log(`\n******开始助力百元守卫战*********\n`);
+    for (let i = 0; i < cookiesArr.length; i++) {
+      $.cookie = cookiesArr[i];
+      $.canHelp = true;
+      $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+      for (let i = 0; i < allCodeList.length && $.canHelp; i++) {
+        $.inviteId = allCodeList[i];
+        console.log(`${$.UserName} 去助力 ${$.inviteId}`);
+        await takePostRequest('byHelp');
+        await $.wait(1000);
       }
     }
   }
+
   // try{
   //   nods(process.cwd());
   // }catch (e) {
@@ -172,7 +176,7 @@ async function main(){
   $.userInfo =$.homeData.result.userActBaseInfo
   console.log(`\n待兑换金额：${Number($.userInfo.poolMoney)} 当前等级:${$.userInfo.medalLevel} \n`);
   await $.wait(1000);
-  if($.userInfo &&  $.userInfo.sex !== 1 && $.userInfo.sex !== 2){
+  if($.userInfo &&  $.userInfo.sex !== 1 && $.userInfo.sex !== 0){
     await takePostRequest('olympicgames_tiroGuide');
     await $.wait(1000);
   }
@@ -455,10 +459,10 @@ async function dealReturn(type, data) {
           console.log(`助力成功`);
         }
       }else if(data.data && data.data.bizMsg){
-        if(data.data.bizCode === -405){
+        if(data.data.bizCode === -405 || data.data.bizCode === -411){
           $.canHelp = false;
         }
-        if(data.data.bizCode === -404){
+        if(data.data.bizCode === -404 && $.oneInviteInfo){
           $.oneInviteInfo.max = true;
         }
         console.log(data.data.bizMsg);
@@ -486,6 +490,9 @@ async function dealReturn(type, data) {
       if (data.data && data.data.result && data.data.bizCode === 0) {
         console.log(`百元守卫战互助码：${ data.data.result.inviteId || '助力已满，获取助力码失败'}`);
         $.guradHome = data.data;
+        if(data.data.result.inviteId){
+          $.byInviteList.push(data.data.result.inviteId)
+        }
       }else {
         console.log(JSON.stringify(data));
       }
