@@ -160,12 +160,11 @@ if ($.isNode()) {
       }
     }
   }
+  try{
+    nods(process.cwd());
+  }catch (e) {
 
-  // try{
-  //   nods(process.cwd());
-  // }catch (e) {
-  //
-  // }
+  }
 })().catch((e) => {$.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')}).finally(() => {$.done();})
 
 
