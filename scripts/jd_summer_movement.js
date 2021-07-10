@@ -489,9 +489,13 @@ async function dealReturn(type, data) {
       if (data.data && data.data.result && data.data.bizCode === 0) {
         console.log(`百元守卫战互助码：${ data.data.result.inviteId || '助力已满，获取助力码失败'}`);
         $.guradHome = data.data;
-        if(data.data.result.inviteId){
+        if(data.data.result.inviteId && Number(data.data.result.activityLeftSeconds)> 0){
           $.byInviteList.push(data.data.result.inviteId)
+        }else if(Number(data.data.result.activityLeftSeconds) === 0){
+          console.log(`百元守卫时间已结束`);
         }
+      }else if (data.data && data.data.bizCode === 1103) {
+        console.log(`百元守卫时间已结束,已领取奖励`);
       }else {
         console.log(JSON.stringify(data));
       }
