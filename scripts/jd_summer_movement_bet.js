@@ -1,10 +1,13 @@
 /**
  *  燃动夏季下注
  *  注意：每个奖品会花费200币下注，不想下注的人不要跑这个脚本
- *  每日20点开奖，脚本会自动开奖，但暂时未加入中奖推送，因为作者没中过，不知道中奖的状态是什么
+ *  若想下满注则设置环境变量 MAX_BET=true 前提：需要账号已经开通店铺会员
+ *  每日20点开奖，脚本会自动开奖，
  *  cron  11 12,20 * * *
  * */
 const $ = new Env('燃动夏季下注');
+//环境变量是否下满注，false否，true是，（满注20次，前提：需要已经开过会员卡，若未开同会员，则只能下3注）
+const maxBet =  $.isNode() ? (process.env.MAX_BET ? process.env.MAX_BET : false):false;
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 const https = require('https');
@@ -15,7 +18,7 @@ const URL = 'https://wbbny.m.jd.com/babelDiy/Zeus/2rtpffK8wqNyPBH6wyUDuBKoAbCt/i
 const SYNTAX_MODULE = '!function(n){var r={};function o(e){if(r[e])';
 const REG_SCRIPT = /<script type="text\/javascript" src="([^><]+\/(app\.\w+\.js))\">/gm;
 const REG_ENTRY = /(__webpack_require__\(__webpack_require__.s=)(\d+)(?=\)})/;
-const needModuleId = 356
+const needModuleId = 356;
 const DATA = {appid:'50085',sceneid:'OY217hPageh5'};
 let smashUtils;
 class MovementFaker {
@@ -82,6 +85,7 @@ if ($.isNode()) {
     return;
   }
   console.log(`注意：每个奖品会花费200币下注，不想下注的人不要跑这个脚本`);
+  console.log(`脚本默认下7注，若需要花费金币下满20注，则修改环境变量“MAX_BET”为true`);
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       $.cookie = cookiesArr[i];
@@ -138,39 +142,28 @@ async function main(){
       runFlag = true;
     }
   }
-  let runBet = false;
-  let maxRun = 0;
   $.continueRun = true;
   $.betGoodsList = $.homeData.result.pawnshopInfo.betGoodsList;
-  do {
-    runBet = false;
-    for (let i = 0; i < $.betGoodsList.length; i++) {
-      $.oneGoodsInfo = $.betGoodsList[i];
-      $.betInfo = {};
-      if($.oneGoodsInfo.status === 0){
-        await takePostRequest('olympicgames_pawnshopBetPop');
-        if($.oneGoodsInfo.score < 7){
-          console.log(`\n奖品：${$.oneGoodsInfo.skuName}，${$.betInfo.betText},去下注`);
-          await takePostRequest('olympicgames_pawnshopBet');
-          await $.wait(2000);
-          runBet = true;
-        }else{
-          console.log(`\n奖品：${$.oneGoodsInfo.skuName},已下${$.oneGoodsInfo.score}注`);
-        }
-      }else if($.oneGoodsInfo.status === 1){
-        console.log(`\n奖品：${$.oneGoodsInfo.skuName}，去开奖`);
-        await takePostRequest('olympicgames_pawnshopRewardPop');
-        await $.wait(2000);
-      }else if($.oneGoodsInfo.status === 3){
-        console.log(`\n奖品：${$.oneGoodsInfo.skuName}，已开奖`);
-      }
+  for (let i = 0; i < $.betGoodsList.length; i++) {
+    $.oneGoodsInfo = $.betGoodsList[i];
+    $.continueRun = true;
+    if($.oneGoodsInfo.status === 1){
+      console.log(`\n奖品：${$.oneGoodsInfo.skuName}，去开奖`);
+      await takePostRequest('olympicgames_pawnshopRewardPop');
+      await $.wait(2000);
+      continue;
+    }else if($.oneGoodsInfo.status === 3){
+      console.log(`\n奖品：${$.oneGoodsInfo.skuName}，已开奖`);
+      continue;
     }
-    if(runBet){
-      await takePostRequest('olympicgames_home');
-      $.betGoodsList = $.homeData.result.pawnshopInfo.betGoodsList;
+    while (($.oneGoodsInfo.score < 7 || (maxBet && $.oneGoodsInfo.score < 20)) && $.continueRun){
+      await takePostRequest('olympicgames_pawnshopBetPop');
+      await $.wait(1000);
+      console.log(`\n奖品：${$.oneGoodsInfo.skuName}，${$.betInfo.betText},去下注`);
+      await takePostRequest('olympicgames_pawnshopBet');
+      await $.wait(2000);
     }
-    maxRun ++;
-  }while (runBet && $.continueRun && maxRun<4)
+  }
   await $.wait(2000);
   await takePostRequest('olympicgames_pawnshopBetRecord');
 }
@@ -290,6 +283,7 @@ async function dealReturn(type, data) {
     case 'olympicgames_pawnshopBet':
       if (data.code === 0 && data.data && data.data.result) {
         console.log(`下注成功，已下注${data.data.result.score}次`);
+        $.oneGoodsInfo.score = data.data.result.score;
       }else{
         $.continueRun = false;
         console.log(JSON.stringify(data));
