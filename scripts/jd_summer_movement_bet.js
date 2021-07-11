@@ -305,6 +305,16 @@ async function dealReturn(type, data) {
     case 'olympicgames_pawnshopRewardPop':
       console.log(`开奖结果`);
       console.log(JSON.stringify(data));
+      if(data.code === 0 && data.data && data.data.result){
+        if(data.data.result.status === 2){
+          console.log('恭喜你，应该是中奖了；');
+          let message = `第【${$.index}】个账号，${$.UserName},可能抽中了【${data.data.result.skuName}】,请登录APP查看`
+          await notify.sendNotify(`燃动夏季下注`, message);
+        }else{
+          console.log('未中奖');
+        }
+      }
+
       break;
     case 'olympicgames_pawnshopBetRecord':
       if (data.code === 0 && data.data && data.data.result && data.data.result[0]) {
