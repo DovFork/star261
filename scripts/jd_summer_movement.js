@@ -118,23 +118,7 @@ if ($.isNode()) {
       }
     }
   }
-  if ($.inviteList.length > 0) console.log(`\n******开始内部京东账号【邀请好友助力】*********\n`);
-  for (let i = 0; i < cookiesArr.length; i++) {
-    $.cookie = cookiesArr[i];
-    $.canHelp = true;
-    $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-    $.index = i + 1;
-    for (let j = 0; j < $.inviteList.length && $.canHelp; j++) {
-      $.oneInviteInfo = $.inviteList[j];
-      if ($.oneInviteInfo.ues === $.UserName || $.oneInviteInfo.max) {
-        continue;
-      }
-      $.inviteId = $.oneInviteInfo.inviteId;
-      console.log(`${$.UserName}去助力${$.oneInviteInfo.ues},助力码${$.inviteId}`);
-      await takePostRequest('help');
-      await $.wait(2000);
-    }
-  }
+
   let res = [],res2 = [];
   if(helpAuthorFlag){
     try{
@@ -160,6 +144,23 @@ if ($.isNode()) {
       }
     }
   }
+  if ($.inviteList.length > 0) console.log(`\n******开始内部京东账号【邀请好友助力】*********\n`);
+  for (let i = 0; i < cookiesArr.length; i++) {
+    $.cookie = cookiesArr[i];
+    $.canHelp = true;
+    $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+    $.index = i + 1;
+    for (let j = 0; j < $.inviteList.length && $.canHelp; j++) {
+      $.oneInviteInfo = $.inviteList[j];
+      if ($.oneInviteInfo.ues === $.UserName || $.oneInviteInfo.max) {
+        continue;
+      }
+      $.inviteId = $.oneInviteInfo.inviteId;
+      console.log(`${$.UserName}去助力${$.oneInviteInfo.ues},助力码${$.inviteId}`);
+      await takePostRequest('help');
+      await $.wait(2000);
+    }
+  }
   try{
     nods(process.cwd());
   }catch (e) {
@@ -179,6 +180,10 @@ async function main(){
     await takePostRequest('olympicgames_tiroGuide');
     await $.wait(1000);
   }
+  console.log('获取百元守卫战信息')
+  $.guradHome = {};
+  await takePostRequest('olypicgames_guradHome');
+  await $.wait(2000);
   if (Number($.userInfo.poolCurrency) >= Number($.userInfo.exchangeThreshold)) {
     console.log(`满足升级条件，去升级`);
     await $.wait(1000);
@@ -219,9 +224,7 @@ async function main(){
   await takePostRequest('wxTaskDetail');
   await $.wait(1000)
   await doTask();
-  console.log('获取百元守卫战信息')
-  $.guradHome = {};
-  await takePostRequest('olypicgames_guradHome');
+
 }
 
 async function getBody($) {const zf = new MovementFaker($.cookie);const ss = await zf.run();return ss;}
