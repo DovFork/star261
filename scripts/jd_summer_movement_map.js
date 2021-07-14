@@ -17,7 +17,7 @@ const REG_ENTRY = /(__webpack_require__\(__webpack_require__.s=)(\d+)(?=\)})/;
 const needModuleId = 356
 const DATA = {appid:'50085',sceneid:'OY217hPageh5'};
 let smashUtils;
-const UA = $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : `jdpingou;iPhone;10.0.6;${Math.ceil(Math.random()*2+12)}.${Math.ceil(Math.random()*4)};${randomString(40)};`) : ($.getdata('JDUA') ? $.getdata('JDUA') : `jdpingou;iPhone;10.0.6;${Math.ceil(Math.random()*2+12)}.${Math.ceil(Math.random()*4)};${randomString(40)};`)
+const UA =  `jdpingou;iPhone;10.0.6;${Math.ceil(Math.random()*2+12)}.${Math.ceil(Math.random()*4)};${randomString(40)};`;
 class MovementFaker {
   constructor(cookie) {this.cookie = cookie;this.ua = UA;}
   async run() {if (!smashUtils) {await this.init();}
