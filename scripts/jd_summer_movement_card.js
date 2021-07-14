@@ -163,13 +163,14 @@ async function main(){
 async function getBody($) {const zf = new MovementFaker($.cookie);const ss = await zf.run();return ss;}
 
 async function doTask(){
+  $.runFlag = true;
   //做任务
-  for (let i = 0; i < $.taskList.length; i++) {
+  for (let i = 0; i < $.taskList.length && $.runFlag; i++) {
     $.oneTask = $.taskList[i];
     if (($.oneTask.taskType === 21 || $.oneTask.taskType === 26) && $.oneTask.status === 1){
       console.log(`尝试领取已经是会员的奖励`);
       $.activityInfoList = $.oneTask.brandMemberVos ;
-      for (let j = 0; j < $.activityInfoList.length; j++) {
+      for (let j = 0; j < $.activityInfoList.length && $.runFlag; j++) {
         $.oneActivityInfo = $.activityInfoList[j];
         if ($.oneActivityInfo.status !== 1 || !$.oneActivityInfo.taskToken) {
           continue;
@@ -182,6 +183,9 @@ async function doTask(){
           await $.wait(2000);
         }else{
           console.log(`任务失败,${$.callbackInfo.data.bizMsg || ''}`);
+          if($.callbackInfo.data.bizMsg === '活动太火爆了'){
+            $.runFlag = false;
+          }
           await $.wait(3000);
         }
       }
