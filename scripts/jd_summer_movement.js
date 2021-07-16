@@ -85,7 +85,8 @@ if ($.isNode()) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
     return;
   }
-
+  console.log(`活动火爆种`);
+  return;
 
   console.log(`注意：若执行失败，则请进入环境手动删除“app.5c2472d1.js”文件，然后重新执行脚本`);
   console.log(`若找不到“app.5c2472d1.js”文件，则删除“app”开头的解密文件`);
@@ -127,7 +128,7 @@ if ($.isNode()) {
   let res = [],res2 = [];
   if(helpAuthorFlag){
     try{
-      res = await getAuthorShareCode('http://cdn.trueorfalse.top/392b03aabdb848d0b7e5ae499ef24e35/');
+      //res = await getAuthorShareCode('http://cdn.trueorfalse.top/392b03aabdb848d0b7e5ae499ef24e35/');
     }catch (e) {}
     if(!res){res = [];}
   }
