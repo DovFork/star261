@@ -10,6 +10,7 @@ const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 $.inviteList = [];
 $.byInviteList = [];
+$.groupInviteIdList = [];
 let helpAuthorFlag = true;
 let UA = ``
 let uuid = ``;
@@ -29,6 +30,8 @@ if ($.isNode()) {
     ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 let hotInfo = {};
+let UAInfo = {};
+let joyTokenInfo = {};
 !(async () => {
   if (!cookiesArr[0]) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
@@ -65,6 +68,8 @@ let hotInfo = {};
         console.log(JSON.stringify(e.message));
       }
       hotInfo[$.UserName] = $.hotFlag;
+      UAInfo[$.UserName] = UA;
+      joyTokenInfo[$.UserName] = joyToken;
     }
   }
   if ($.inviteList.length > 0) console.log(`\n******开始内部京东账号【邀请好友助力】*********\n`);
@@ -76,6 +81,10 @@ let hotInfo = {};
     if(hotInfo[$.UserName]){
       continue;
     }
+    UA = UAInfo[$.UserName]
+    uuid = UA.split(";")[4];
+    joyToken = joyTokenInfo[$.UserName];
+    $.cookie = `joyytoken=50085${joyToken}; ` + cookiesArr[i];
     for (let j = 0; j < $.inviteList.length && $.canHelp; j++) {
       $.oneInviteInfo = $.inviteList[j];
       if ($.oneInviteInfo.ues === $.UserName || $.oneInviteInfo.max) {
@@ -84,9 +93,35 @@ let hotInfo = {};
       $.inviteId = $.oneInviteInfo.inviteId;
       console.log(`${$.UserName}去助力${$.oneInviteInfo.ues},助力码${$.inviteId}`);
       await takePostRequest('help');
-      await $.wait(2000);
+      await $.wait(4000);
     }
   }
+  // 团队互助助力
+  for (let i = 0; i < cookiesArr.length; i++) {
+    $.cookie = cookiesArr[i];
+    $.canHelp = true;
+    $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+    if(hotInfo[$.UserName]){
+      continue;
+    }
+    UA = UAInfo[$.UserName]
+    uuid = UA.split(";")[4];
+    joyToken = joyTokenInfo[$.UserName];
+    $.cookie = `joyytoken=50085${joyToken}; ` + cookiesArr[i];
+    $.index = i + 1;
+    if ($.groupInviteIdList && $.groupInviteIdList.length) console.log(`\n******开始内部京东账号【邀请好友助力】【团队运动】*********\n`);
+    for (let j = 0; j < $.groupInviteIdList.length && $.canHelp; j++) {
+      $.oneGroupInviteIdInfo = $.groupInviteIdList[j];
+      if ($.oneGroupInviteIdInfo.ues === $.UserName || $.oneGroupInviteIdInfo.max) {
+        continue;
+      }
+      $.inviteId = $.oneGroupInviteIdInfo.groupInviteId;
+      console.log(`${$.UserName}去助力${$.oneGroupInviteIdInfo.ues},运动团队助力码${$.inviteId}`);
+      await takePostRequest('help');
+      await $.wait(4000);
+    }
+  }
+
   if(helpAuthorFlag){
     let res = [],res2 = [];
     try{
@@ -104,11 +139,15 @@ let hotInfo = {};
         if(hotInfo[$.UserName]){
           continue;
         }
+        UA = UAInfo[$.UserName]
+        uuid = UA.split(";")[4];
+        joyToken = joyTokenInfo[$.UserName];
+        $.cookie = `joyytoken=50085${joyToken}; ` + cookiesArr[i];
         for (let i = 0; i < allCodeList.length && $.canHelp; i++) {
           $.inviteId = allCodeList[i];
           console.log(`${$.UserName} 去助力 ${$.inviteId}`);
           await takePostRequest('byHelp');
-          await $.wait(1000);
+          await $.wait(4000);
         }
       }
     }
@@ -151,6 +190,14 @@ async function main(){
   kt = Date.now()+''+Math.floor(1000 + 8999* Math.random()).toString();
   $.userInfo =$.homeData.result.userActBaseInfo
   console.log(`\n待兑换金额：${Number($.userInfo.poolMoney)} 当前等级:${$.userInfo.medalLevel} \n`);
+  console.log(`团队运动互助码：${$.homeData.result && $.homeData.result.groupInfoVO.groupInviteId || '助力已满，获取助力码失败'}\n`);
+  if ($.homeData.result && $.homeData.result.groupInfoVO.groupInviteId) {
+    $.groupInviteIdList.push({
+      'ues': $.UserName,
+      'groupInviteId': $.homeData.result.groupInfoVO.groupInviteId,
+      'max': false
+    });
+  }
   await $.wait(1000);
   if($.userInfo &&  $.userInfo.sex !== 1 && $.userInfo.sex !== 0){
     await takePostRequest('olympicgames_tiroGuide');
@@ -442,6 +489,8 @@ async function dealReturn(type, data) {
       if(data.data && data.data.bizCode === 0){
         if(data.data.result.hongBaoVO && data.data.result.hongBaoVO.withdrawCash){
           console.log(`助力成功`);
+        }else{
+          console.log(JSON.stringify(data));
         }
       }else if(data.data && data.data.bizMsg){
         if(data.data.bizCode === -405 || data.data.bizCode === -411){
@@ -449,6 +498,15 @@ async function dealReturn(type, data) {
         }
         if(data.data.bizCode === -404 && $.oneInviteInfo){
           $.oneInviteInfo.max = true;
+        }
+        if (data.data.bizMsg.indexOf('今天用完所有') > -1) {
+          $.canHelp = false;
+        }
+        if (data.data.bizMsg.indexOf('组过队') > -1 || data.data.bizMsg.indexOf('你已经有团队') > -1) {
+          $.canHelp = false;
+        }
+        if (data.data.bizMsg.indexOf('不需要助力') > -1) {
+          $.oneGroupInviteIdInfo.max = true
         }
         console.log(data.data.bizMsg);
       }else{
