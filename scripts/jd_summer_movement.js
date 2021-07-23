@@ -97,6 +97,7 @@ let joyTokenInfo = {};
     }
   }
   // 团队互助助力
+  if ($.groupInviteIdList && $.groupInviteIdList.length) console.log(`\n******开始内部京东账号【邀请好友助力】【团队运动】*********\n`);
   for (let i = 0; i < cookiesArr.length; i++) {
     $.cookie = cookiesArr[i];
     $.canHelp = true;
@@ -109,7 +110,6 @@ let joyTokenInfo = {};
     joyToken = joyTokenInfo[$.UserName];
     $.cookie = `joyytoken=50085${joyToken}; ` + cookiesArr[i];
     $.index = i + 1;
-    if ($.groupInviteIdList && $.groupInviteIdList.length) console.log(`\n******开始内部京东账号【邀请好友助力】【团队运动】*********\n`);
     for (let j = 0; j < $.groupInviteIdList.length && $.canHelp; j++) {
       $.oneGroupInviteIdInfo = $.groupInviteIdList[j];
       if ($.oneGroupInviteIdInfo.ues === $.UserName || $.oneGroupInviteIdInfo.max) {
