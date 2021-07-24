@@ -44,14 +44,19 @@ if ($.isNode()) {
       }
       continue
     }
-    await main();
+    try{
+      await main();
+    }catch (e) {
+      console.log(JSON.stringify(e));
+    }
     await $.wait(1000);
   }
   for (let i = 0; i < cookiesArr.length; i++) {
     $.cookie = cookiesArr[i];
+    $.canHelp = true;
     $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
     $.encryptProjectId = useInfo[$.nickName];
-    for (let j = 0; j < $.allInvite.length; j++) {
+    for (let j = 0; j < $.allInvite.length && $.canHelp; j++) {
       $.codeInfo = $.allInvite[j];
       $.code = $.codeInfo.code;
       if($.UserName ===  $.codeInfo.userName){
@@ -75,6 +80,10 @@ async function main() {
     return ;
   }
   console.log(`获取活动详情成功`);
+  if(!$.activityInfo.activityUserInfo || !$.activityInfo.activityBaseInfo){
+    console.log(`活动信息异常`);
+    return;
+  }
   console.log(`当前call值：${$.activityInfo.activityUserInfo.userStarNum}`);
   $.encryptProjectId = $.activityInfo.activityBaseInfo.encryptProjectId;
   useInfo[$.nickName] = $.encryptProjectId;
@@ -163,7 +172,7 @@ function dealReturn(type, data) {
   }
   switch (type) {
     case 'showSecondFloorRunInfo':
-      if(data.code === '0'){
+      if(data.code === '0' &&  data.data && data.data.result){
         $.activityInfo = data.data.result;
       }
       break;
@@ -201,6 +210,9 @@ function dealReturn(type, data) {
       }else if (data.code === '0' && data.data.bizCode === '104'){
         $.codeInfo.time ++;
         console.log(`已助力过`);
+      }else if (data.code === '0' && data.data.bizCode === '108'){
+        $.canHelp = false;
+        console.log(`助力次数已用完`);
       }else{
         console.log(JSON.stringify(data));
       }
