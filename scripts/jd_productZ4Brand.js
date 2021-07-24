@@ -173,12 +173,16 @@ function dealReturn(type, data) {
     case 'showSecondFloorRunInfo':
       if(data.code === '0' &&  data.data && data.data.result){
         $.activityInfo = data.data.result;
+      }else{
+        console.log(JSON.stringify(data));
       }
       break;
     case 'superBrandTaskList':
       //console.log(JSON.stringify(data));
       if(data.code === '0'){
         $.taskList = data.data.result.taskList;
+      }else{
+        console.log(JSON.stringify(data));
       }
       break;
     case 'superBrandTaskLottery':
