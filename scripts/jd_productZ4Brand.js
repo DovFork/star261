@@ -51,23 +51,23 @@ if ($.isNode()) {
     }
     await $.wait(1000);
   }
-  // let res = [];
-  // try{res = await getAuthorShareCode('https://raw.githubusercontent.com/star261/jd/main/code/ProductZ4Brand.json');}catch (e) {}
-  // if(!res){
-  //   try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/ProductZ4Brand.json');}catch (e) {}
-  //   if(!res){res = [];}
-  // }
-  // for (let i = 0; i < 1; i++) {
-  //   $.cookie = cookiesArr[i];
-  //   $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-  //   $.encryptProjectId = useInfo[$.nickName];
-  //   for (let j = 0; j < res.length; j++) {
-  //     $.code = res[j];
-  //     console.log(`${$.UserName},去助力:${$.code}`);
-  //     await takePostRequest('help');
-  //     await $.wait(2000);
-  //   }
-  // }
+  let res = [];
+  try{res = await getAuthorShareCode('https://raw.githubusercontent.com/star261/jd/main/code/ProductZ4Brand.json');}catch (e) {}
+  if(!res){
+  try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/ProductZ4Brand.json');}catch (e) {}
+  if(!res){res = [];}
+  }
+  for (let i = 0; i < 1; i++) {
+   $.cookie = cookiesArr[i];
+    $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+    $.encryptProjectId = useInfo[$.nickName];
+    for (let j = 0; j < res.length; j++) {
+      $.code = res[j];
+      console.log(`${$.UserName},去助力:${$.code}`);
+      await takePostRequest('help');
+      await $.wait(2000);
+    }
+  }
 
   for (let i = 0; i < cookiesArr.length; i++) {
     $.cookie = cookiesArr[i];
