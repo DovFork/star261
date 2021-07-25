@@ -1,10 +1,9 @@
 /*
-特务Zx佳沛
+特务Z
 cron 23 0,9 24-27 7 *
 要跑2次，第一次做任务和脚本内互助，第二次才够币抽奖
-第一个CK会为作者助力，暂不知助力上限（貌似没上限）
 */
-const $ = new Env('特务Zx佳沛');
+const $ = new Env('特务Z');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [];
@@ -52,6 +51,24 @@ if ($.isNode()) {
     }
     await $.wait(1000);
   }
+  // let res = [];
+  // try{res = await getAuthorShareCode('https://raw.githubusercontent.com/star261/jd/main/code/ProductZ4Brand.json');}catch (e) {}
+  // if(!res){
+  //   try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/ProductZ4Brand.json');}catch (e) {}
+  //   if(!res){res = [];}
+  // }
+  // for (let i = 0; i < 1; i++) {
+  //   $.cookie = cookiesArr[i];
+  //   $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+  //   $.encryptProjectId = useInfo[$.nickName];
+  //   for (let j = 0; j < res.length; j++) {
+  //     $.code = res[j];
+  //     console.log(`${$.UserName},去助力:${$.code}`);
+  //     await takePostRequest('help');
+  //     await $.wait(2000);
+  //   }
+  // }
+
   for (let i = 0; i < cookiesArr.length; i++) {
     $.cookie = cookiesArr[i];
     $.canHelp = true;
@@ -190,7 +207,7 @@ function dealReturn(type, data) {
       if(data.code === '0' && data.data.bizCode !== 'TK000'){
         $.runFlag = false;
         console.log(`抽奖次数已用完`);
-      }else if(data.code === '0' && data.data.bizCode == 'TK000'){
+      }else if(data.code === '0' && data.data.bizCode === 'TK000'){
         if(data.data && data.data.result && data.data.result.rewardComponent && data.data.result.rewardComponent.beanList){
           if(data.data.result.rewardComponent.beanList.length >0){
             console.log(`获得豆子：${data.data.result.rewardComponent.beanList[0].quantity}`)
@@ -259,7 +276,7 @@ function getAuthorShareCode(url) {
         resolve(data || []);
       }
     })
-    await $.wait(10000)
+    await $.wait(10000);
     resolve();
   })
 }
