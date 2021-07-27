@@ -9,7 +9,7 @@ const $ = new Env('燃动夏季下注');
 //环境变量是否下满注，false否，true是，（满注20次，前提：需要已经开过会员卡，若未开同会员，则只能下3注）
 const maxBet =  $.isNode() ? (process.env.MAX_BET ? process.env.MAX_BET : false):false;
 //环境变量NOT_BET，设置不下注的奖品。默认值['舒尔佳胶囊']
-const notBet =  $.isNode() ? (process.env.NOT_BET ? process.env.NOT_BET : ['舒尔佳胶囊']):['舒尔佳胶囊'];
+const notBet =  $.isNode() ? (process.env.NOT_BET ? process.env.NOT_BET : ['舒尔佳胶囊','荣耀AM33']):['舒尔佳胶囊','荣耀AM33'];
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 const UA =  `jdpingou;iPhone;10.0.6;${Math.ceil(Math.random()*2+12)}.${Math.ceil(Math.random()*4)};${randomString(40)};`;
