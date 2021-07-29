@@ -28,10 +28,10 @@ if ($.isNode()) {
   let res = [];
   try{res = await getAuthorShareCode('https://raw.githubusercontent.com/star261/jd/main/code/ProductZ4Brand.json');}catch (e) {}
   if(!res){
-    try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/ProductZ4Brand.json');}catch (e) {}
+    try{res = await getAuthorShareCode('https://cdn.jsdelivr.net/gh/star261/jd@main/code/ProductZ4Brand.json');}catch (e) {}
     if(!res){res = [];}
   }
-  if(res.length === 0){console.log(`作者已不需要助力，感谢`);return ;}
+  if(res.length === 0){console.log(`获取作者助力码失败或者作者已不需要助力，感谢`);return ;}
   console.log(`新版特务为冲榜活动，由于奖品较少且只有排名靠前的才有奖励，故此脚本只会给作者助力，感谢运行此脚本；`);
   $.shareUuid = res[0];
   for (let i = 0; i < cookiesArr.length; i++) {
