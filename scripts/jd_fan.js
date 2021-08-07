@@ -370,6 +370,15 @@ function dealReturn(type, data) {
             }
             break;
         case 'startDraw':
+            if(data.result && data.data){
+                if(data.data.drawInfoType === 6){
+                    console.log(`抽奖获得：${data.data.name || ''}`);
+                }else if(data.data.drawInfoType === 0){
+                    console.log(`未抽中`);
+                }else{
+                    console.log(`抽奖结果：${data.data.name || ''}`);
+                }
+            }
             console.log(JSON.stringify(data));
             break;
         default:
