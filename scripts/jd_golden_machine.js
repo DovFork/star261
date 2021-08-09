@@ -30,7 +30,7 @@ $.authorCode = '';
         try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/goldPhone.json');}catch (e) {}
         if(!res){res = [];}
     }
-    if(res.length > 0){
+    if(res && res.length > 0){
         $.authorCode = getRandomArrayElements(res,1)[0];
     }
     for (let i = 0; i < cookiesArr.length; i++) {
