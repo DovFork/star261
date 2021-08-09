@@ -58,7 +58,7 @@ $.authorCode = '';
 async function main() {
     $.token = ``;
     await getToken();
-    if($.token === ``){
+    if($.token === `` || !$.token){
         console.log(`获取token失败`);return;
     }
     console.log(`token:${$.token}`);
@@ -71,8 +71,8 @@ async function main() {
     await $.wait(1000);
     $.useInfo = {};
     await takeGetRequest('get_user_info');
-    if(JSON.stringify($.useInfo) === `{}`){
-        console.log(`获取用户信息失败`);return;
+    if(JSON.stringify($.useInfo) === `{}` || $.useInfo.status_code === 403){
+        console.log(`获取用户信息失败,可能是黑号`);return;
     }
     console.log(`组队码：${$.useInfo.code}`);
     await $.wait(1000);
@@ -85,13 +85,13 @@ async function main() {
         console.log(`去参团: ${$.authorCode}`)
         await takePostRequest('join_team');
     }else{
-        console.log(`已参团`)
+        console.log(`已参团`);
     }
     $.needVoteList = $.homeInfo.hard_list;
     await doVote();
     $.needVoteList = $.homeInfo.soft_list;
     await doVote();
-
+    //await takeGetRequest('team_info');
 }
 
 async function doVote(){
@@ -119,6 +119,9 @@ function compare(property){
 }
 async function takeGetRequest(type){
     let  url= `https://xinrui1-isv.isvjcloud.com/gapi/${type}`;
+    if(type === 'team_info'){
+        url = `https://xinrui1-isv.isvjcloud.com/gapi/team_info?type=1`;
+    }
     let myRequest = getGetRequest(url);
     return new Promise(async resolve => {
         $.get(myRequest, (err, resp, data) => {
@@ -196,6 +199,11 @@ function dealReturn(type, data) {
             }
             break;
         case 'join_team':
+            if(data){
+                console.log(JSON.stringify(data));
+            }
+            break;
+        case 'team_info':
             if(data){
                 console.log(JSON.stringify(data));
             }
