@@ -94,6 +94,7 @@ async function main() {
     $.teamInfo = {}
     $.type = 1;
     await takeGetRequest('team_info');
+    console.log(`自己队伍分数：${$.teamInfo.team_vote_total}`);
     await $.wait(2000);
     if(Number($.teamInfo.my_vote_total) > 0){
         if($.teamInfo.draw_total_first === 0){
@@ -109,9 +110,9 @@ async function main() {
             await $.wait(2000);
         }
     }
-
     $.type = 2;
     await takeGetRequest('team_info');
+    console.log(`加入队伍分数：${$.teamInfo.team_vote_total}`);
     await $.wait(2000);
     if(Number($.teamInfo.my_vote_total) > 0){
         if($.teamInfo.draw_total_first === 0){
@@ -127,7 +128,6 @@ async function main() {
             await $.wait(2000);
         }
     }
-
     await takeGetRequest('my_prize');
 }
 
