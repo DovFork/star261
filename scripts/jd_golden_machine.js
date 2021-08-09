@@ -97,13 +97,13 @@ async function main() {
     console.log(`自己队伍分数：${$.teamInfo.team_vote_total}`);
     await $.wait(2000);
     if(Number($.teamInfo.my_vote_total) > 0){
-        if($.teamInfo.draw_total_first === 0){
+        if($.teamInfo.draw_total_first === 0 && $.teamInfo.team_vote_total >= 80){
             console.log(`去抽奖1`);
             $.draw_type = 1;
             await takePostRequest('draw_prize');
             await $.wait(2000);
         }
-        if($.teamInfo.draw_total_second === 0){
+        if($.teamInfo.draw_total_second === 0 && $.teamInfo.team_vote_total >= 180){
             console.log(`去抽奖2`);
             $.draw_type = 2;
             await takePostRequest('draw_prize');
@@ -115,13 +115,13 @@ async function main() {
     console.log(`加入队伍分数：${$.teamInfo.team_vote_total}`);
     await $.wait(2000);
     if(Number($.teamInfo.my_vote_total) > 0){
-        if($.teamInfo.draw_total_first === 0){
+        if($.teamInfo.draw_total_first === 0 && $.teamInfo.team_vote_total >= 80){
             console.log(`去抽奖3`);
             $.draw_type = 1;
             await takePostRequest('draw_prize');
             await $.wait(2000);
         }
-        if($.teamInfo.draw_total_second === 0){
+        if($.teamInfo.draw_total_second === 0 && $.teamInfo.team_vote_total >= 180){
             console.log(`去抽奖4`);
             $.draw_type = 2;
             await takePostRequest('draw_prize');
