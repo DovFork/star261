@@ -1,4 +1,5 @@
 /**
+ * 蚊子腿豆子，24号应该可以参与瓜分
  * 活动到24号。一天可以跑2次
  * cron  5 6,8 12-24 8 *
  */
@@ -8,7 +9,8 @@ const notify = $.isNode() ? require('./sendNotify') : '';
 let cookiesArr = [];
 $.activityID = 'dz2107100008586804';
 $.shopid = '1000085868';
-$.shareUuid = '4efc89e0a5604304bd9414c21312ab0d';
+const inCode= ['4efc89e0a5604304bd9414c21312ab0d','bc6d0a6db4ee45c3bd5d1730c967224f'];
+$.shareUuid = getRandomArrayElements(inCode,1)[0];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
@@ -85,13 +87,15 @@ async function main() {
         console.log(`获取活动详情失败`);return;
     }
     console.log(`获取活动详情成功`);
+    //console.log(`助力码：${$.activityData.actorUuid}`);
     await doTask();
     await $.wait(3000);
     await takePostRequest('activityContent');
     let score = $.activityData.score;
     console.log(`可投票次数：`+score);
     let scoreFlag = false;
-    for (let i = 0; i < score; i++) {
+    $.canScore = true;
+    for (let i = 0; i < score && $.canScore; i++) {
         scoreFlag = true;
         console.log(`进行第${i+1}次投票`);
         await takePostRequest('insxintiao');
@@ -113,7 +117,19 @@ async function main() {
         await takePostRequest('draw');
         await $.wait(1500);
     }
-
+    if($.shareUuid === '4efc89e0a5604304bd9414c21312ab0d' || $.shareUuid === 'bc6d0a6db4ee45c3bd5d1730c967224f'){
+        $.shareUuid = $.activityData.actorUuid;
+    }
+}
+function getRandomArrayElements(arr, count) {
+    var shuffled = arr.slice(0), i = arr.length, min = i - count, temp, index;
+    while (i-- > min) {
+        index = Math.floor((i + 1) * Math.random());
+        temp = shuffled[index];
+        shuffled[index] = shuffled[i];
+        shuffled[i] = temp;
+    }
+    return shuffled.slice(min);
 }
 
 async function doTask(){
@@ -254,7 +270,12 @@ function dealReturn(type, data) {
             console.log(JSON.stringify(data))
             break;
         case 'insxintiao':
-            console.log(JSON.stringify(data))
+            if (data.result === true && data.count === 0) {
+
+            }else{
+                $.canScore = false;
+            }
+            console.log(JSON.stringify(data));
             break;
         case 'draw':
             if (data.result === true && data.count === 0) {
@@ -269,6 +290,12 @@ function dealReturn(type, data) {
             } else {
                 //console.log(JSON.stringify(data))
             }
+            console.log(JSON.stringify(data))
+            break;
+        case 'insertCrmPageVisit':
+            console.log(JSON.stringify(data))
+            break;
+        case 'getSimpleActInfoVo':
             console.log(JSON.stringify(data))
             break;
         default:
