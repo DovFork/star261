@@ -17,7 +17,9 @@ const activityList = [
     {'actid':'5a8aea7f27b84900a14624fe9dcc8fe1','endTime':1628956799000},
     {'actid':'58121dee0d84428bbdeb83934ffa1b80','endTime':1630425599000},
     {'actid':'d3a8802bb5fe442dab38d1deaf2fffd7','endTime':1630425599000},//需要入会
-    {'actid':'5cd5b2ad1d284ea6bcc4b7e05baf4b7d','endTime':1628611200000},//需要入会
+    {'actid':'a422e7bb8cee4092b3b5bc91a0d8fa61','endTime':1629129600000},
+    {'actid':'8afc9104d6444696b3f16ceb23a24536','endTime':1630425599000},
+    {'actid':'f006443799d34b55b9061be7b765c3fa','endTime':1630339200000},
 ];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
