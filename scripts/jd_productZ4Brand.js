@@ -1,4 +1,4 @@
-/*
+/**
 特务Z
 cron 23 8,9 * * * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_productZ4Brand.js
 要跑2次
