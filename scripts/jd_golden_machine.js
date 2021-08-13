@@ -1,6 +1,6 @@
 /**
  *  活动路径  手机馆---》IQOO大牌日---〉左下角金机馆
- *  33 4,7 8-20 8 *
+ *  cron 33 4,7 8-20 8 * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_golden_machine.js
  *  第一个账号参加作者内置的团，其他账号参加第一个账号的团
  */
 const $ = new Env('金机奖投票');

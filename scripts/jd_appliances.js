@@ -1,6 +1,6 @@
 /**
  *   执行一次就可以了，最多10个豆子
- *   cron   54 5 9-15 8 *
+ *   cron 54 5 9-15 8 * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_appliances.js
  *   不要问我是哪个活动，问了我也不告诉你,我也找不到入口了
  */
 const $ = new Env('家电');
