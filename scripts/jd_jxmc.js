@@ -1,5 +1,5 @@
 /**
-* 惊喜牧场
+惊喜牧场
 cron 23 0-23/3 * * * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_jxmc.js
 */
 // prettier-ignore

@@ -1,7 +1,7 @@
 /**
 特务Z
 cron 23 8,9 * * * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_productZ4Brand.js
-要跑2次
+一天要跑2次
 */
 const $ = new Env('特务Z');
 const notify = $.isNode() ? require('./sendNotify') : '';
