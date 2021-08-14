@@ -1,7 +1,7 @@
 /**
 蚊子腿豆子，24号应该可以参与瓜分
 活动到24号。一天可以跑2次
-cron 5 6,8 12-24 8 *  https://raw.githubusercontent.com/star261/jd/main/scripts/jd_appliances.js
+cron 5 6,8 12-24 8 *  https://raw.githubusercontent.com/star261/jd/main/scripts/jd_decompression.js
  */
 const $ = new Env('热血心跳,狂解压');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -17,7 +17,10 @@ if ($.isNode()) {
     })
     if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
-    cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
+    cookiesArr = [
+        $.getdata("CookieJD"),
+        $.getdata("CookieJD2"),
+        ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 !(async () => {
     if (!cookiesArr[0]) {
