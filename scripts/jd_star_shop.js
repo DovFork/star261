@@ -1,6 +1,6 @@
 /**
  明星小店
- 没啥水，就是跑个乐呵
+ 蚊子腿，欧皇可以中实物
  cron 10 9,18 9-25 8 * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_star_shop.js
  */
 const $ = new Env('明星小店');
@@ -9,10 +9,10 @@ const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 $.inviteCodeList = [];
 $.authorCodeList = [];
 let cookiesArr = [];
+$.linkID = '';
 let uniqueIdList = [
     {'id':'L74LC5','name':'肖战','linkID':'P8Iw2eXANcZA4r_ofEDaAQ'}
 ];
-$.linkID = '';
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
@@ -29,7 +29,6 @@ if ($.isNode()) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
         return;
     }
-    console.log(`\n哎，这活动没水，就是跑着玩\n`);
     console.log(`==================开始执行明星小店任务==================`);
     for (let i = 0; i < cookiesArr.length; i++) {
         $.index = i + 1;
@@ -49,20 +48,30 @@ if ($.isNode()) {
         }
         await main();
     }
-    // $.inviteCodeList.push(...getRandomArrayElements($.authorCodeList, 1));
-    // cookiesArr = getRandomArrayElements(cookiesArr,cookiesArr.length);
-    // for (let i = 0; i < cookiesArr.length; i++) {
-    //     $.cookie = cookiesArr[i];
-    //     $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-    //     let sar = Math.floor((Math.random() * uniqueIdList.length));
-    //     $.uniqueId = uniqueIdList[sar].id;
-    //     for (let k = 0; k < $.inviteCodeList.length; k++) {
-    //         $.oneCode = $.inviteCodeList[k];
-    //         console.log(`${$.UserName}去助力：${$.uniqueId} 活动，助力码：${$.oneCode}`);
-    //         await takePostRequest('help');
-    //         await $.wait(2000);
-    //     }
-    // }
+    return;
+    try{res = await getAuthorShareCode('https://raw.githubusercontent.com/star261/jd/main/code/starShop.json');}catch (e) {}
+    if(!res){
+        try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/starShop.json');}catch (e) {}
+        if(!res){res = [];}
+    }
+    if(res && res.length > 0){
+        $.authorCodeList = getRandomArrayElements(res,1)[0];
+    }
+    $.inviteCodeList.push(...getRandomArrayElements($.authorCodeList, 1));
+    cookiesArr = getRandomArrayElements(cookiesArr,cookiesArr.length);
+    for (let i = 0; i < cookiesArr.length; i++) {
+        $.cookie = cookiesArr[i];
+        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+        let sar = Math.floor((Math.random() * uniqueIdList.length));
+        $.uniqueId = uniqueIdList[sar].id;
+        for (let k = 0; k < $.inviteCodeList.length; k++) {
+            $.oneCode = $.inviteCodeList[k];
+            console.log(`${$.UserName}去助力：${$.uniqueId} 活动，助力码：${$.oneCode}`);
+            //await takePostRequest('help');
+            await help()
+            await $.wait(2000);
+        }
+    }
 })()
     .catch((e) => {
         $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -120,6 +129,37 @@ async function main() {
     }
 }
 
+async function help(){
+    const url = `https://api.m.jd.com/?functionId=activityStarBackGetProgressInfo&body={%22starId%22:%22${$.uniqueId}%22,%22sharePin%22:%22${$.oneCode}%22,%22taskId%22:%22230%22,%22linkId%22:%22${$.linkID}%22}&_t=${Date.now()}&appid=activities_platform`;
+    const headers = {
+        'Origin' : `https://prodev.m.jd.com`,
+        'Cookie': $.cookie,
+        'Connection' : `keep-alive`,
+        'Accept' : `application/json, text/plain, */*`,
+        'Referer' : `https://prodev.m.jd.com/mall/active/34LcYfTMVLu6QPowsoLtk383Hcfv/index.html`,
+        'Host' : `api.m.jd.com`,
+        'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+        'Accept-Encoding' : `gzip, deflate, br`,
+        'Accept-Language' : `zh-cn`
+    };
+    let myRequest =  {url: url, headers: headers};
+    return new Promise(async resolve => {
+        $.get(myRequest, (err, resp, data) => {
+            try {
+                try {
+                    console.log(data+'\n');
+                } catch (e) {
+                    console.log(`返回异常：${data}`);
+                    return;
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve();
+            }
+        })
+    })
+}
 
 Date.prototype.Format = function (fmt) { //author: meizz
     var o = {
