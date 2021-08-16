@@ -10,6 +10,8 @@ const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 const notify = $.isNode() ? require('./sendNotify') : '';
 let cookiesArr = [];
 const activityList = [
+    {'actid':'5ae85e34c6054f379b3bdb0867842cd0','endTime':1629302400000},
+    {'actid':'4baf19fa3f454e6abf82be7d66605ab4','endTime':1630425599000},
     {'actid':'c75ae2afd7ff4aec9ed47008b08400f7','endTime':1630288800000},
     {'actid':'3da50af9e8664746844c5456b8920b7d','endTime':1630425599000},
     {'actid':'162c43699ba945e8adb83b2bd5fe0142','endTime':1630425599000},
@@ -18,9 +20,12 @@ const activityList = [
     {'actid':'8afc9104d6444696b3f16ceb23a24536','endTime':1630425599000},
     {'actid':'f006443799d34b55b9061be7b765c3fa','endTime':1630339200000},
     {'actid':'ca6c8e28204e4955b850c58aaf1811e8','endTime':1629129600000},
+    {'actid':'4ee56f673e164305a527545efe566b20','endTime':1630425599000},//需要入会
     {'actid':'c77e8342bca24d5f86d2a076b8f00860','endTime':1629907199000},
     {'actid':'49d8035a8f294ac7893e814d2b8e79ed','endTime':1629907199000},
-    {'actid':'4ee56f673e164305a527545efe566b20','endTime':1630425599000},//需要入会
+    {'actid':'f22809ea36b14411a625641ef9685e53','endTime':1630339200000},
+    {'actid':'9bb5cb2801114f2981c183abbc2aa522','endTime':1630425596000},//需要入会
+    {'actid':'eff9c47393be446f9dd576e26d13dd9d','endTime':1631635200000},
 ];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
