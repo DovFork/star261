@@ -156,7 +156,7 @@ async function help(){
         $.get(myRequest, (err, resp, data) => {
             try {
                 try {
-                    console.log(data+'\n');
+                    //console.log(data+'\n');
                 } catch (e) {
                     console.log(`返回异常：${data}`);
                     return;
