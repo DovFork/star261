@@ -126,7 +126,7 @@ function getinfo() {
 function join() {
   return new Promise(async (resolve) => {
     $.get({
-      url: `https://jdjoy.jd.com/module/task/draw/join?configCode=${configCode}&fp=${randomWord(false,40,40)}&eid=`,
+      url: `https://jdjoy.jd.com/module/task/draw/join?configCode=${configCode}&fp=${randomWord(false,32,32)}&eid=`,
       headers: {
         'Host': 'jdjoy.jd.com',
         'accept': '*/*',
