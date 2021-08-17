@@ -126,7 +126,7 @@ function getinfo() {
 function join() {
   return new Promise(async (resolve) => {
     $.get({
-      url: `https://jdjoy.jd.com/module/task/draw/join?configCode=${configCode}&fp=33a335a95295b75dd35e8ec3d5e4c58b&eid=6DSJADJ6244SQ6NTGG7P2JHB5T6JCZ6AE5JRIVWO74YNEWW7X5VRLN6GH5MYZ5ZEDVYXNVCHEJ5FEONYOEXMAZJAIE`,
+      url: `https://jdjoy.jd.com/module/task/draw/join?configCode=${configCode}&fp=${randomWord(false,40,40)}&eid=`,
       headers: {
         'Host': 'jdjoy.jd.com',
         'accept': '*/*',
@@ -160,6 +160,22 @@ function join() {
     })
   })
 }
+function randomWord(randomFlag, min, max){
+  var str = "",
+      range = min,
+      arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+  // 随机产生
+  if(randomFlag){
+    range = Math.round(Math.random() * (max-min)) + min;
+  }
+  for(var i=0; i<range; i++){
+    pos = Math.round(Math.random() * (arr.length-1));
+    str += arr[pos];
+  }
+  return str;
+}
+
 //获取首页活动
 function doTask(taskType, itemId) {
   return new Promise(resolve => {
