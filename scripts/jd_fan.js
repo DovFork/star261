@@ -10,7 +10,9 @@ const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 const notify = $.isNode() ? require('./sendNotify') : '';
 let cookiesArr = [];
 const activityList = [
-    {'actid':'5ae85e34c6054f379b3bdb0867842cd0','endTime':1629302400000},
+    {'actid':'25d0cb359ef347c69ee1c044a4168efc','endTime':1629820799000},
+    {'actid':'0cdf614f95214c59b94697e3ed5ba37a','endTime':1629799864000},
+    {'actid':'aac7c63287b54081847a327ed4c73745','endTime':1629475199000},
     {'actid':'4baf19fa3f454e6abf82be7d66605ab4','endTime':1630425599000},
     {'actid':'c75ae2afd7ff4aec9ed47008b08400f7','endTime':1630288800000},
     {'actid':'3da50af9e8664746844c5456b8920b7d','endTime':1630425599000},
@@ -26,6 +28,7 @@ const activityList = [
     {'actid':'eff9c47393be446f9dd576e26d13dd9d','endTime':1631635200000},
     {'actid':'d6fe4bd6a34e4eb9b498932122453890','endTime':1630548000000},
     {'actid':'e4c6bdba323948ceb05e4122acd97fba','endTime':1629648000000},
+    {'actid':'5622386323bb4a82a2ed4e0158f7c6a7','endTime':1631289599000},
 ];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
