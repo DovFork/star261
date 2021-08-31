@@ -1,6 +1,6 @@
 /**
  * 写着玩的，没水了，跑个寂寞，有很低的几率抽实物，愿意跑的跑，PS：被菜狗薅干的
- cron 12 12 28-31,1-12 8,9 * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_iqoo_run.js
+ cron 22 12,18 28-31,1-12 8,9 * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_iqoo_run.js
  * */
 const $ = new Env('iqoo生而为赢酷跑');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
