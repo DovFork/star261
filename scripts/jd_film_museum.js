@@ -36,7 +36,7 @@ if ($.isNode()) {
         try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/museum.json');}catch (e) {}
         if(!res){res = [];}
     }
-    if(arr.length === 0){
+    if(res.length === 0){
         return ;
     }
     $.shareUuid = getRandomArrayElements(res,1)[0];
