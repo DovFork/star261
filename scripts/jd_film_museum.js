@@ -429,7 +429,7 @@ function TotalBean() {
 }
 function getRandomArrayElements(arr, count) {
     if(arr.length === 0){
-        arr = ["2028","12668","12137","12684","12695","12769","12795","12808","12827","12792"];
+        arr = ["2028","12668","12137","12695","12769","12795","12808","12827","12792"];
     }
     var shuffled = arr.slice(0), i = arr.length, min = i - count, temp, index;
     while (i-- > min) {
