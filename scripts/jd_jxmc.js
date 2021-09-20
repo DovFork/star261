@@ -163,30 +163,28 @@ async function pasture() {
     await $.wait(2000);
     await doTask();
     await $.wait(2000);
-    if (j === 2) {
-      //割草
-      console.log(`\n开始进行割草`);
-      $.runFlag = true;
-      for (let i = 0; i < 10 && $.runFlag; i++) {
-        $.mowingInfo = {};
-        console.log(`开始第${i + 1}次割草`);
-        await takeGetRequest('mowing');
-        await $.wait(1000);
-        if ($.mowingInfo.surprise === true) {
-          //除草礼盒
-          console.log(`领取除草礼盒`);
-          await takeGetRequest('GetSelfResult');
-          await $.wait(3000);
-        }
+    //割草
+    console.log(`\n开始进行割草`);
+    $.runFlag = true;
+    for (let i = 0; i < 10 && $.runFlag; i++) {
+      $.mowingInfo = {};
+      console.log(`开始第${i + 1}次割草`);
+      await takeGetRequest('mowing');
+      await $.wait(1000);
+      if ($.mowingInfo.surprise === true) {
+        //除草礼盒
+        console.log(`领取除草礼盒`);
+        await takeGetRequest('GetSelfResult');
+        await $.wait(3000);
       }
-      //横扫鸡腿
-      $.runFlag = true;
-      console.log(`\n开始进行横扫鸡腿`);
-      for (let i = 0; i < 10 && $.runFlag; i++) {
-        console.log(`开始第${i + 1}次横扫鸡腿`);
-        await takeGetRequest('jump');
-        await $.wait(2000);
-      }
+    }
+    //横扫鸡腿
+    $.runFlag = true;
+    console.log(`\n开始进行横扫鸡腿`);
+    for (let i = 0; i < 10 && $.runFlag; i++) {
+      console.log(`开始第${i + 1}次横扫鸡腿`);
+      await takeGetRequest('jump');
+      await $.wait(2000);
     }
     await takeGetRequest('GetHomePageInfo');
     await $.wait(2000);
