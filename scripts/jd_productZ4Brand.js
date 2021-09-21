@@ -112,7 +112,11 @@ async function doTask(){
       continue;
     }
     if($.oneTask.assignmentType === 3 || $.oneTask.assignmentType === 0 || $.oneTask.assignmentType === 7){
-      console.log(`任务：${$.oneTask.assignmentName}，去执行`);
+      if($.oneTask.assignmentType === 7){
+        console.log(`任务：${$.oneTask.assignmentName}，尝试领取开卡奖励；（不会自动开卡，如果你已经是会员，则会领取成功）`);
+      }else{
+        console.log(`任务：${$.oneTask.assignmentName}，去执行`);
+      }
       let subInfo = $.oneTask.ext.followShop || $.oneTask.ext.brandMemberList || '';
       if(subInfo && subInfo[0]){
         $.runInfo = subInfo[0];

@@ -1,6 +1,7 @@
 /**
- * 蚊子腿豆子，10月16号应该可以参与瓜分
- * cron  5 6,18 1-16,21-30 9,10 *
+ * 蚊子腿豆子，活动时间:9.21-10.16 10月16号应该可以参与瓜分
+ * 第一个号会给作者助力，其他号会给第一个号助力，活动期间貌似只有一次助力机会
+ cron  5 6,18 1-16,21-30 9,10 * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_decompression.js
  */
 const $ = new Env('热血心跳,狂解压');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
