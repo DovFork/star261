@@ -68,7 +68,7 @@ if ($.isNode()) {
       }
       console.log(`${$.UserName},去助力:${$.code}`);
       await takeRequest('help');
-      await $.wait(2000);
+      await $.wait(1000);
     }
   }
 })().catch((e) => {$.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')}).finally(() => {$.done();})
@@ -88,10 +88,10 @@ async function main() {
   console.log(`当前活动:${$.activityName},ID：${$.activityId},可抽奖次数:${$.callNumber}`);
   $.encryptProjectId = $.activityInfo.activityBaseInfo.encryptProjectId;
   useInfo[$.nickName] = $.encryptProjectId;
-  await $.wait(2000);
+  await $.wait(1000);
   $.taskList = [];
   await takeRequest('superBrandTaskList');
-  await $.wait(2000);
+  await $.wait(1000);
   await doTask();
   if($.runFlag){
     await takeRequest('superBrandSecondFloorMainPage');
@@ -101,7 +101,7 @@ async function main() {
   for (let i = 0; i < $.callNumber; i++) {
     console.log(`进行抽奖`);
     await takeRequest('superBrandTaskLottery');//抽奖
-    await $.wait(2000);
+    await $.wait(1000);
   }
 }
 async function doTask(){
@@ -124,7 +124,7 @@ async function doTask(){
         $.runInfo = {'itemId':null};
       }
       await takeRequest('superBrandDoTask');
-      await $.wait(2000);
+      await $.wait(1000);
       $.runFlag = true;
     }else if($.oneTask.assignmentType === 2){
       console.log(`助力码：${$.oneTask.ext.assistTaskDetail.itemId}`);
