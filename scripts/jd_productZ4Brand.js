@@ -24,53 +24,57 @@ if ($.isNode()) {
     ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 !(async () => {
-  if (!cookiesArr[0]) {
-    $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
-    return;
-  }
-  for (let i = 0; i < cookiesArr.length; i++) {
-    UA = `jdapp;iPhone;10.0.8;14.6;${randomWord(false,40,40)};network/wifi;JDEbook/openapp.jdreader;model/iPhone9,2;addressid/2214222493;appBuild/168841;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16E158;supportJDSHWK/1`;
-    $.index = i + 1;
-    $.cookie = cookiesArr[i];
-    $.isLogin = true;
-    $.nickName = '';
-    $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-    await TotalBean();
-    console.log(`\n*****开始【京东账号${$.index}】${$.nickName || $.UserName}*****\n`);
-    if (!$.isLogin) {
-      $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
+    if (!cookiesArr[0]) {
+        $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
+        return;
+    }
+    for (let i = 0; i < cookiesArr.length; i++) {
+        UA = `jdapp;iPhone;10.0.8;14.6;${randomWord(false,40,40)};network/wifi;JDEbook/openapp.jdreader;model/iPhone9,2;addressid/2214222493;appBuild/168841;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16E158;supportJDSHWK/1`;
+        $.index = i + 1;
+        $.cookie = cookiesArr[i];
+        $.isLogin = true;
+        $.nickName = '';
+        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+        await TotalBean();
+        console.log(`\n*****开始【京东账号${$.index}】${$.nickName || $.UserName}*****\n`);
+        if (!$.isLogin) {
+            $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
 
-      if ($.isNode()) {
-        await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
-      }
-      continue
+            if ($.isNode()) {
+                await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
+            }
+            continue
+        }
+        try{
+            await main();
+        }catch (e) {
+            console.log(JSON.stringify(e));
+        }
+        await $.wait(1000);
     }
-    try{
-      await main();
-    }catch (e) {
-      console.log(JSON.stringify(e));
+    if($.allInvite.length > 0 ){
+        console.log(`\n开始脚本内互助\n`);
     }
-    await $.wait(1000);
-  }
-  if($.allInvite.length > 0 ){
-    console.log(`\n开始脚本内互助\n`);
-  }
-  for (let i = 0; i < cookiesArr.length; i++) {
-    $.cookie = cookiesArr[i];
-    $.canHelp = true;
-    $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-    $.encryptProjectId = useInfo[$.nickName];
-    for (let j = 0; j < $.allInvite.length && $.canHelp; j++) {
-      $.codeInfo = $.allInvite[j];
-      $.code = $.codeInfo.code;
-      if($.UserName ===  $.codeInfo.userName || $.codeInfo.time === 3){
-        continue;
-      }
-      console.log(`${$.UserName},去助力:${$.code}`);
-      await takeRequest('help');
-      await $.wait(1000);
+    for (let i = 0; i < cookiesArr.length; i++) {
+        $.cookie = cookiesArr[i];
+        $.canHelp = true;
+        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+        if(!useInfo[$.UserName]){
+            continue;
+        }
+        $.encryptProjectId = useInfo[$.UserName];
+        for (let j = 0; j < $.allInvite.length && $.canHelp; j++) {
+            $.codeInfo = $.allInvite[j];
+            $.code = $.codeInfo.code;
+            if($.UserName ===  $.codeInfo.userName || $.codeInfo.time === 3){
+                continue;
+            }
+            $.encryptAssignmentId = $.codeInfo.encryptAssignmentId;
+            console.log(`\n${$.UserName},去助力:${$.code}`);
+            await takeRequest('help');
+            await $.wait(1000);
+        }
     }
-  }
 })().catch((e) => {$.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')}).finally(() => {$.done();})
 
 async function main() {
@@ -87,7 +91,7 @@ async function main() {
   $.callNumber = $.activityInfo.activityUserInfo.userStarNum;
   console.log(`当前活动:${$.activityName},ID：${$.activityId},可抽奖次数:${$.callNumber}`);
   $.encryptProjectId = $.activityInfo.activityBaseInfo.encryptProjectId;
-  useInfo[$.nickName] = $.encryptProjectId;
+  useInfo[$.UserName] = $.encryptProjectId;
   await $.wait(1000);
   $.taskList = [];
   await takeRequest('superBrandTaskList');
@@ -132,9 +136,9 @@ async function doTask(){
         'userName':$.UserName,
         'code':$.oneTask.ext.assistTaskDetail.itemId,
         'time':0,
-        'max':true
+        'max':true,
+        'encryptAssignmentId':$.oneTask.encryptAssignmentId
       });
-      $.helpEncryptAssignmentId = $.oneTask.encryptAssignmentId;
     }
   }
 }
@@ -160,7 +164,7 @@ async function takeRequest(type) {
       url = `https://api.m.jd.com/api?functionId=superBrandTaskLottery&appid=ProductZ4Brand&client=wh5&t=${Date.now()}&body=%7B%22source%22:%22secondfloor%22,%22activityId%22:${$.activityId}%7D`;
       break;
     case 'help':
-      url = `https://api.m.jd.com/api?functionId=superBrandDoTask&appid=ProductZ4Brand&client=wh5&t=${Date.now()}&body=%7B%22source%22:%22secondfloor%22,%22activityId%22:${$.activityId},%22encryptProjectId%22:%22${$.encryptProjectId}%22,%22encryptAssignmentId%22:%22${$.helpEncryptAssignmentId}%22,%22assignmentType%22:2,%22itemId%22:%22${$.code}%22,%22actionType%22:0%7D`;
+      url = `https://api.m.jd.com/api?functionId=superBrandDoTask&appid=ProductZ4Brand&client=wh5&t=${Date.now()}&body=%7B%22source%22:%22secondfloor%22,%22activityId%22:${$.activityId},%22encryptProjectId%22:%22${$.encryptProjectId}%22,%22encryptAssignmentId%22:%22${$.encryptAssignmentId}%22,%22assignmentType%22:2,%22itemId%22:%22${$.code}%22,%22actionType%22:0%7D`;
       break;
     default:
       console.log(`错误${type}`);
