@@ -134,9 +134,14 @@ function getRandomArrayElements(arr, count) {
 }
 
 async function doTask(){
+    $.taskDetailList = []
     for (let i = 0; i < $.taskList.length; i++) {
         $.oneTask = $.taskList[i];
-        $.taskDetailList = $.oneTask.simpleRecordInfoVo || $.oneTask.browseShopVo || $.oneTask.shoppingActivityVos || $.oneTask.productInfoVos ||$.oneTask.assistTaskDetailVo;
+        if($.oneTask.simpleRecordInfoVo){
+            $.taskDetailList.push($.oneTask.simpleRecordInfoVo);
+        }else{
+            $.taskDetailList =  $.oneTask.browseShopVo || $.oneTask.shoppingActivityVos || $.oneTask.productInfoVos ||$.oneTask.assistTaskDetailVo;
+        }
         console.log(`任务：${$.oneTask.taskName},需要完成${$.oneTask.maxTimes}次，已完成${$.oneTask.times}次`);
         if($.oneTask.status === 2){
             continue;
