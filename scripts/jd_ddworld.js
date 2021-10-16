@@ -102,6 +102,7 @@ async function main() {
     await takeGetRequest('get_exchange');
     for (let i = $.exChangeList.length -1; i >= 0 ; i--) {
         let oneExchange = $.exChangeList[i];
+        console.log(`奖励：${oneExchange.name}，库存：${oneExchange.stock}`);
         if(exchangeId !== '999' && Number(exchangeId) !== oneExchange.id){
             continue;
         }
