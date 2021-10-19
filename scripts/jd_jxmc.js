@@ -59,41 +59,21 @@ let token ='';
     await $.wait(2000);
   }
   console.log('\n##################开始账号内互助#################\n');
-  let newCookiesArr = [];
-  for(let i = 0;i<$.helpCkList.length;i+=4){
-    newCookiesArr.push($.helpCkList.slice(i,i+4))
-  }
-  for (let i = 0; i < newCookiesArr.length; i++) {
-    let thisCookiesArr = newCookiesArr[i];
-    let codeList = [];
-    for (let j = 0; j < thisCookiesArr.length; j++) {
-      $.cookie = thisCookiesArr[j];
-      $.UserName = decodeURIComponent($.cookie.match(/pt_pin=(.+?);/) && $.cookie.match(/pt_pin=(.+?);/)[1])
-      for (let k = 0; k < $.inviteCodeList.length; k++) {
-        if ($.UserName === $.inviteCodeList[k].use) {
-          codeList.push({
-            'name': $.UserName,
-            'code': $.inviteCodeList[k].code
-          });
+    for (let j = 0; j < cookiesArr.length; j++) {
+        $.cookie = cookiesArr[j];
+        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=(.+?);/) && $.cookie.match(/pt_pin=(.+?);/)[1]);
+        token = await getJxToken();
+        for (let k = 0; k < $.inviteCodeList.length; k++) {
+            $.oneCodeInfo = $.inviteCodeList[k];
+            if($.oneCodeInfo.use === $.UserName){
+                continue;
+            }else{
+                console.log(`\n${$.UserName}去助力${$.oneCodeInfo.use},助力码：${$.oneCodeInfo.code}\n`);
+                await takeGetRequest('help');
+                await $.wait(2000);
+            }
         }
-      }
     }
-    for (let j = 0; j < thisCookiesArr.length; j++) {
-      $.cookie = thisCookiesArr[j];
-      token = await getJxToken()
-      $.UserName = decodeURIComponent($.cookie.match(/pt_pin=(.+?);/) && $.cookie.match(/pt_pin=(.+?);/)[1])
-      for (let k = 0; k < codeList.length; k++) {
-        $.oneCodeInfo = codeList[k];
-        if(codeList[k].name === $.UserName){
-          continue;
-        }else{
-          console.log(`\n${$.UserName}去助力${codeList[k].name},助力码：${codeList[k].code}\n`);
-          await takeGetRequest('help');
-          await $.wait(2000);
-        }
-      }
-    }
-  }
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -481,11 +461,11 @@ function dealReturn(type, data) {
       if (data.ret === 0 && data.data.result === 0 ) {
         console.log(`助力成功`);
       }else if (data.ret === 0 && data.data.result === 4){
-        console.log(`助力次数已用完 或者已助力`);
+        console.log(`助力次数已用完`);
         //$.canHelp = false;
       }else if(data.ret === 0 && data.data.result === 5){
-        console.log(`助力已满`);
-        $.oneCodeInfo.max = true;
+          console.log(`已助力过`);
+        //$.oneCodeInfo.max = true;
       }else{
         console.log(JSON.stringify(data))
       }
