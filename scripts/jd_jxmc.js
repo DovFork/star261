@@ -20,45 +20,50 @@ let cookiesArr = [];
 $.appId = 10028;
 $.helpCkList = [];
 if ($.isNode()) {
-  Object.keys(jdCookieNode).forEach((item) => {
-    cookiesArr.push(jdCookieNode[item])
-  })
-  if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
+    Object.keys(jdCookieNode).forEach((item) => {
+        cookiesArr.push(jdCookieNode[item])
+    })
+    if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
-  cookiesArr = [
-    $.getdata("CookieJD"),
-    $.getdata("CookieJD2"),
-    ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
+    cookiesArr = [
+        $.getdata("CookieJD"),
+        $.getdata("CookieJD2"),
+        ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 let token ='';
+$.activeid = '';
 !(async () => {
-  $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
-  await requestAlgo();
-  if (!cookiesArr[0]) {
-    $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
-    return;
-  }
-  for (let i = 0; i < cookiesArr.length; i++) {
-    $.index = i + 1;
-    $.cookie = cookiesArr[i];
-    $.isLogin = true;
-    $.nickName = '';
-    $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-    await TotalBean();
-    console.log(`\n*****开始【京东账号${$.index}】${$.nickName || $.UserName}*****\n`);
-    if (!$.isLogin) {
-      $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
-
-      if ($.isNode()) {
-        await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
-      }
-      continue
+    $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
+    await requestAlgo();
+    if (!cookiesArr[0]) {
+        $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
+        return;
     }
-    token = await getJxToken()
-    await pasture();
-    await $.wait(2000);
-  }
-  console.log('\n##################开始账号内互助#################\n');
+    for (let i = 0; i < cookiesArr.length; i++) {
+        $.index = i + 1;
+        $.cookie = cookiesArr[i];
+        $.isLogin = true;
+        $.nickName = '';
+        $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
+        await TotalBean();
+        console.log(`\n*****开始【京东账号${$.index}】${$.nickName || $.UserName}*****\n`);
+        if (!$.isLogin) {
+            $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
+
+            if ($.isNode()) {
+                await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
+            }
+            continue
+        }
+        token = await getJxToken()
+        try {
+            await pasture();
+        } catch (e) {
+            $.logErr(e)
+        }
+        await $.wait(2000);
+    }
+    console.log('\n##################开始账号内互助#################\n');
     for (let j = 0; j < cookiesArr.length; j++) {
         $.cookie = cookiesArr[j];
         $.UserName = decodeURIComponent($.cookie.match(/pt_pin=(.+?);/) && $.cookie.match(/pt_pin=(.+?);/)[1]);
@@ -76,67 +81,76 @@ let token ='';
     }
 })()
     .catch((e) => {
-      $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
+        $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
     })
     .finally(() => {
-      $.done();
+        $.done();
     })
-
-
 async function pasture() {
-  try {
     $.homeInfo = {};
     $.petidList = [];
     $.crowInfo = {};
     await takeGetRequest('GetHomePageInfo');
     if (JSON.stringify($.homeInfo) === '{}') {
-      return;
-    } else {
-      if (!$.homeInfo.petinfo) {
+        console.log(`获取活动详情失败`);
+        return;
+    }
+    console.log(`获取活动详情成功`);
+    $.activeid = $.homeInfo.activeid;
+    if($.homeInfo.maintaskId !== 'pause'){
+        let runTime = 0;
+        do {
+            await $.wait(2000);
+            console.log(`\n执行初始化任务：${$.homeInfo.maintaskId}`);
+            await takeGetRequest('DoMainTask');
+            await $.wait(2000);
+            await takeGetRequest('GetHomePageInfo');
+            runTime++;
+        }while ($.homeInfo.maintaskId !== 'pause' && runTime<30)
+    }
+    if (!$.homeInfo.petinfo) {
         console.log(`\n温馨提示：${$.UserName} 请先手动完成【新手指导任务】再运行脚本再运行脚本\n`);
         return;
-      }
-      console.log('获取活动信息成功');
-      console.log(`互助码：${$.homeInfo.sharekey}`);
-      $.activeid = $.homeInfo.activeid;
-      $.helpCkList.push($.cookie);
-      $.inviteCodeList.push({'use':$.UserName,'code':$.homeInfo.sharekey,'max':false});
-      for (let i = 0; i < $.homeInfo.petinfo.length; i++) {
+    }
+    console.log('获取活动信息成功');
+    console.log(`互助码：${$.homeInfo.sharekey}`);
+    $.helpCkList.push($.cookie);
+    $.inviteCodeList.push({'use':$.UserName,'code':$.homeInfo.sharekey,'max':false});
+    for (let i = 0; i < $.homeInfo.petinfo.length; i++) {
         $.onepetInfo = $.homeInfo.petinfo[i];
         $.petidList.push($.onepetInfo.petid);
         if ($.onepetInfo.cangetborn === 1) {
-          console.log(`开始收鸡蛋`);
-          await takeGetRequest('GetEgg');
-          await $.wait(1000);
+            console.log(`开始收鸡蛋`);
+            await takeGetRequest('GetEgg');
+            await $.wait(1000);
         }
-      }
-      $.crowInfo = $.homeInfo.cow;
     }
+    $.crowInfo = $.homeInfo.cow;
     $.GetVisitBackInfo = {};
     await $.wait(1000);
     await takeGetRequest('GetVisitBackInfo');
     if($.GetVisitBackInfo.iscandraw === 1){
-      await $.wait(1000);
-      await takeGetRequest('GetVisitBackCabbage');
+        await $.wait(1000);
+        await takeGetRequest('GetVisitBackCabbage');
     }
     await $.wait(1000);
     $.GetSignInfo = {};
     await takeGetRequest('GetSignInfo');
     if(JSON.stringify($.GetSignInfo) !== '{}' && $.GetSignInfo.signlist){
-      let signList = $.GetSignInfo.signlist;
-      for (let j = 0; j < signList.length; j++) {
-        if(signList[j].fortoday && !signList[j].hasdone){
-          await $.wait(1000);
-          console.log(`去签到`);
-          await takeGetRequest('GetSignReward');
+        let signList = $.GetSignInfo.signlist;
+        for (let j = 0; j < signList.length; j++) {
+            if(signList[j].fortoday && !signList[j].hasdone){
+                await $.wait(1000);
+                console.log(`去签到`);
+                await takeGetRequest('GetSignReward');
+            }
         }
-      }
     }
     await $.wait(1000);
     if ($.crowInfo.lastgettime) {
-      console.log('收奶牛金币');
-      await takeGetRequest('cow');
-      await $.wait(1000);
+        console.log('收奶牛金币');
+        await takeGetRequest('cow');
+        await $.wait(1000);
     }
     $.taskList = [];
     await takeGetRequest('GetUserTaskStatusList');
@@ -147,127 +161,123 @@ async function pasture() {
     console.log(`\n开始进行割草`);
     $.runFlag = true;
     for (let i = 0; i < 10 && $.runFlag; i++) {
-      $.mowingInfo = {};
-      console.log(`开始第${i + 1}次割草`);
-      await takeGetRequest('mowing');
-      await $.wait(1000);
-      if ($.mowingInfo.surprise === true) {
-        //除草礼盒
-        console.log(`领取除草礼盒`);
-        await takeGetRequest('GetSelfResult');
-        await $.wait(3000);
-      }
+        $.mowingInfo = {};
+        console.log(`开始第${i + 1}次割草`);
+        await takeGetRequest('mowing');
+        await $.wait(1000);
+        if ($.mowingInfo.surprise === true) {
+            //除草礼盒
+            console.log(`领取除草礼盒`);
+            await takeGetRequest('GetSelfResult');
+            await $.wait(3000);
+        }
     }
     //横扫鸡腿
     $.runFlag = true;
     console.log(`\n开始进行横扫鸡腿`);
     for (let i = 0; i < 10 && $.runFlag; i++) {
-      console.log(`开始第${i + 1}次横扫鸡腿`);
-      await takeGetRequest('jump');
-      await $.wait(2000);
+        console.log(`开始第${i + 1}次横扫鸡腿`);
+        await takeGetRequest('jump');
+        await $.wait(2000);
     }
     await takeGetRequest('GetHomePageInfo');
     await $.wait(2000);
     let materialNumber = 0;
     let materialinfoList = $.homeInfo.materialinfo;
     for (let j = 0; j < materialinfoList.length; j++) {
-      if (materialinfoList[j].type !== 1) {
-        continue;
-      }
-      materialNumber = Number(materialinfoList[j].value);//白菜数量
+        if (materialinfoList[j].type !== 1) {
+            continue;
+        }
+        materialNumber = Number(materialinfoList[j].value);//白菜数量
     }
     if (Number($.homeInfo.coins) > 5000) {
-      let canBuyTimes = Math.floor(Number($.homeInfo.coins) / 5000);
-      console.log(`\n共有金币${$.homeInfo.coins}`);
-      if(Number(materialNumber) < 400){
-        for (let j = 0; j < canBuyTimes && j < 4; j++) {
-          console.log(`第${j + 1}次购买白菜`);
-          await takeGetRequest('buy');
-          await $.wait(2000);
+        let canBuyTimes = Math.floor(Number($.homeInfo.coins) / 5000);
+        console.log(`\n共有金币${$.homeInfo.coins}`);
+        if(Number(materialNumber) < 400){
+            for (let j = 0; j < canBuyTimes && j < 4; j++) {
+                console.log(`第${j + 1}次购买白菜`);
+                await takeGetRequest('buy');
+                await $.wait(2000);
+            }
+            await takeGetRequest('GetHomePageInfo');
+            await $.wait(2000);
+        }else{
+            console.log(`现有白菜${materialNumber},大于400颗,不进行购买`);
         }
-        await takeGetRequest('GetHomePageInfo');
-        await $.wait(2000);
-      }else{
-        console.log(`现有白菜${materialNumber},大于400颗,不进行购买`);
-      }
     }else{
-      console.log(`\n共有金币${$.homeInfo.coins}`);
+        console.log(`\n共有金币${$.homeInfo.coins}`);
     }
     materialinfoList = $.homeInfo.materialinfo;
     for (let j = 0; j < materialinfoList.length; j++) {
-      if (materialinfoList[j].type !== 1) {
-        continue;
-      }
-      if (Number(materialinfoList[j].value) > 10) {
-        $.canFeedTimes = Math.floor(Number(materialinfoList[j].value) / 10);
-        console.log(`\n共有白菜${materialinfoList[j].value}颗，每次喂10颗，可以喂${$.canFeedTimes}次`);
-        $.runFeed = true;
-        for (let k = 0; k < $.canFeedTimes && $.runFeed && k < 40; k++) {
-          $.pause = false;
-          console.log(`开始第${k + 1}次喂白菜`);
-          await takeGetRequest('feed');
-          await $.wait(4000);
-          if ($.pause) {
-            await takeGetRequest('GetHomePageInfo');
-            await $.wait(1000);
-            for (let n = 0; n < $.homeInfo.petinfo.length; n++) {
-              $.onepetInfo = $.homeInfo.petinfo[n];
-              if ($.onepetInfo.cangetborn === 1) {
-                console.log(`开始收鸡蛋`);
-                await takeGetRequest('GetEgg');
-                await $.wait(1000);
-              }
+        if (materialinfoList[j].type !== 1) {
+            continue;
+        }
+        if (Number(materialinfoList[j].value) > 10) {
+            $.canFeedTimes = Math.floor(Number(materialinfoList[j].value) / 10);
+            console.log(`\n共有白菜${materialinfoList[j].value}颗，每次喂10颗，可以喂${$.canFeedTimes}次,每次执行脚本最多会喂40次`);
+            $.runFeed = true;
+            for (let k = 0; k < $.canFeedTimes && $.runFeed && k < 40; k++) {
+                $.pause = false;
+                console.log(`开始第${k + 1}次喂白菜`);
+                await takeGetRequest('feed');
+                await $.wait(4000);
+                if ($.pause) {
+                    await takeGetRequest('GetHomePageInfo');
+                    await $.wait(1000);
+                    for (let n = 0; n < $.homeInfo.petinfo.length; n++) {
+                        $.onepetInfo = $.homeInfo.petinfo[n];
+                        if ($.onepetInfo.cangetborn === 1) {
+                            console.log(`开始收鸡蛋`);
+                            await takeGetRequest('GetEgg');
+                            await $.wait(1000);
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
-  } catch (e) {
-    $.logErr(e)
-  }
 }
-
 async function doTask() {
-  for (let i = 0; i < $.taskList.length; i++) {
-    $.oneTask = $.taskList[i];
-    //console.log($.oneTask.taskId);
-    if ($.oneTask.dateType === 1) {//成就任务
-      if ($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
-        console.log(`完成任务：${$.oneTask.taskName}`);
-        await takeGetRequest('Award');
-        await $.wait(2000);
-      }
-    } else {//每日任务
-      if($.oneTask.awardStatus === 1){
-        console.log(`任务：${$.oneTask.taskName},已完成`);
-      }else if($.oneTask.taskType === 4){
-        if($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes){
-          console.log(`完成任务：${$.oneTask.taskName}`);
-          await takeGetRequest('Award');
-          await $.wait(2000);
-        }else {
-          console.log(`任务：${$.oneTask.taskName},未完成`);
+    for (let i = 0; i < $.taskList.length; i++) {
+        $.oneTask = $.taskList[i];
+        //console.log($.oneTask.taskId);
+        if ($.oneTask.dateType === 1) {//成就任务
+            if ($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
+                console.log(`完成任务：${$.oneTask.taskName}`);
+                await takeGetRequest('Award');
+                await $.wait(2000);
+            }
+        } else {//每日任务
+            if($.oneTask.awardStatus === 1){
+                console.log(`任务：${$.oneTask.taskName},已完成`);
+            }else if($.oneTask.taskType === 4){
+                if($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes){
+                    console.log(`完成任务：${$.oneTask.taskName}`);
+                    await takeGetRequest('Award');
+                    await $.wait(2000);
+                }else {
+                    console.log(`任务：${$.oneTask.taskName},未完成`);
+                }
+            }else if ($.oneTask.awardStatus === 2 && $.oneTask.taskCaller === 1) {//浏览任务
+                if (Number($.oneTask.completedTimes) > 0 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
+                    console.log(`完成任务：${$.oneTask.taskName}`);
+                    await takeGetRequest('Award');
+                    await $.wait(2000);
+                }
+                for (let j = Number($.oneTask.completedTimes); j < Number($.oneTask.configTargetTimes); j++) {
+                    console.log(`去做任务：${$.oneTask.description}`);
+                    await takeGetRequest('DoTask');
+                    await $.wait(6000);
+                    console.log(`完成任务：${$.oneTask.description}`);
+                    await takeGetRequest('Award');
+                }
+            } else if ($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
+                console.log(`完成任务：${$.oneTask.taskName}`);
+                await takeGetRequest('Award');
+                await $.wait(2000);
+            }
         }
-      }else if ($.oneTask.awardStatus === 2 && $.oneTask.taskCaller === 1) {//浏览任务
-        if (Number($.oneTask.completedTimes) > 0 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
-          console.log(`完成任务：${$.oneTask.taskName}`);
-          await takeGetRequest('Award');
-          await $.wait(2000);
-        }
-        for (let j = Number($.oneTask.completedTimes); j < Number($.oneTask.configTargetTimes); j++) {
-          console.log(`去做任务：${$.oneTask.description}`);
-          await takeGetRequest('DoTask');
-          await $.wait(6000);
-          console.log(`完成任务：${$.oneTask.description}`);
-          await takeGetRequest('Award');
-        }
-      } else if ($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
-        console.log(`完成任务：${$.oneTask.taskName}`);
-        await takeGetRequest('Award');
-        await $.wait(2000);
-      }
     }
-  }
 }
 
 async function takeGetRequest(type) {
@@ -351,6 +361,11 @@ async function takeGetRequest(type) {
       url += `&jxmc_jstoken=${token.farm_jstoken}&timestamp=${token.timestamp}&phoneid=${token.phoneid}`
       url += `&_stk=activeid%2Cactivekey%2Cchannel%2Ccurrdate%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp&_ste=1`;
       break;
+    case 'DoMainTask':
+        url = `https://m.jingxi.com/jxmc/operservice/DoMainTask?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=null&step=${$.homeInfo.maintaskId}`;
+        url += `&jxmc_jstoken=${token.farm_jstoken}&timestamp=${token.timestamp}&phoneid=${token.phoneid}`
+        url += `&_stk=activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Cstep%2Ctimestamp&_ste=1`;
+        break;
     default:
       console.log(`错误${type}`);
   }
