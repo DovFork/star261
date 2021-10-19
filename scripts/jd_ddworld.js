@@ -139,7 +139,11 @@ async function doTask(){
     for (let i = 0; i < $.taskList.length; i++) {
         $.oneTask = $.taskList[i];
         if($.oneTask.simpleRecordInfoVo){
-            $.taskDetailList.push($.oneTask.simpleRecordInfoVo);
+            if($.oneTask.simpleRecordInfoVo === Array){
+                $.taskDetailList = $.oneTask.simpleRecordInfoVo;
+            }else{
+                $.taskDetailList.push($.oneTask.simpleRecordInfoVo);
+            }
         }else{
             $.taskDetailList =  $.oneTask.browseShopVo || $.oneTask.shoppingActivityVos || $.oneTask.productInfoVos ||$.oneTask.assistTaskDetailVo;
         }
