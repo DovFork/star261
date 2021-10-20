@@ -1,7 +1,7 @@
 /*
 城城领现金
 cron 0 0-23/1 * * * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_city.js
-说明：只助力第一个CK，脚本内会内置作者助力码，介意勿跑
+说明：助力第一个CK和脚本内置作者助力码，介意勿跑
  */
 const $ = new Env('城城领现金');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -24,7 +24,7 @@ let inviteCodes = []
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
         return;
     }
-    console.log(`注意：只助力第一个CK，脚本内会内置作者助力码，介意勿跑，等待10秒`);
+    console.log(`注意：助力第一个CK和脚本内置作者助力码，介意勿跑，等待10秒`);
     await $.wait(10000);
     let res = [];
     try{res = await getAuthorShareCode('https://raw.githubusercontent.com/lsh26/share_code/main/city.json');}catch (e) {}
