@@ -51,6 +51,7 @@ $.newShareCodes = [];
                 continue
             }
             await getInfo('',true);
+            let res = [];
             try{res = await getAuthorShareCode('https://raw.githubusercontent.com/lsh26/share_code/main/city.json');}catch (e) {}
             if(!res){
                 try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/city.json');}catch (e) {}
