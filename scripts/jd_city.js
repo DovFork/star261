@@ -32,6 +32,21 @@ $.newShareCodes = [];
     }
     console.log(`注意：只助力第一个CK，脚本内会内置作者助力码，介意勿跑，等待10秒`);
     await $.wait(100000);
+    let res = [];
+    try{res = await getAuthorShareCode('https://raw.githubusercontent.com/lsh26/share_code/main/city.json');}catch (e) {}
+    if(!res){
+        try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/city.json');}catch (e) {}
+        if(!res){res = [];}
+    }
+    let shareUuid = []
+    if(res.length > 0){
+        if(res.length > 3){
+            shareUuid = getRandomArrayElements(res,3);
+        }else{
+            shareUuid = getRandomArrayElements(res,1);
+        }
+        //$.newShareCodes.push(...shareUuid)
+    }
     for (let i = 0; i < cookiesArr.length; i++) {
         if (cookiesArr[i]) {
             cookie = cookiesArr[i];
@@ -51,19 +66,7 @@ $.newShareCodes = [];
                 continue
             }
             await getInfo('',true);
-            let res = [];
-            try{res = await getAuthorShareCode('https://raw.githubusercontent.com/lsh26/share_code/main/city.json');}catch (e) {}
-            if(!res){
-                try{res = await getAuthorShareCode('https://gitee.com/star267/share-code/raw/master/city.json');}catch (e) {}
-                if(!res){res = [];}
-            }
-            let shareUuid = []
-            if(res.length > 0){
-                if(res.length > 3){
-                    shareUuid = getRandomArrayElements(res,3);
-                }else{
-                    shareUuid = getRandomArrayElements(res,1);
-                }
+            if($.index  === 1 && shareUuid.length > 0){
                 $.newShareCodes.push(...shareUuid)
             }
             for (let i = 0; i < $.newShareCodes.length; ++i) {
