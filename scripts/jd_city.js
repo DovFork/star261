@@ -7,7 +7,7 @@ const $ = new Env('城城领现金');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 //自动抽奖 ，环境变量  JD_CITY_EXCHANGE
-let exchangeFlag = $.getdata('jdJxdExchange') || !!0;//是否开启自动抽奖，建议活动快结束开启，默认关闭
+let exchangeFlag = $.getdata('jdJxdExchange') || false;//是否开启自动抽奖，建议活动快结束开启，默认关闭
 let cookiesArr = [], cookie = '', message;
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
@@ -24,14 +24,13 @@ $.newShareCodes = [];
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
         return;
     }
-    await requireConfig();
     if (exchangeFlag) {
         console.log(`脚本自动抽奖`)
     } else {
         console.log(`脚本不会自动抽奖，建议活动快结束开启，默认关闭,如需自动抽奖请设置环境变量  JD_CITY_EXCHANGE 为true`);
     }
     console.log(`注意：只助力第一个CK，脚本内会内置作者助力码，介意勿跑，等待10秒`);
-    await $.wait(100000);
+    await $.wait(10000);
     let res = [];
     try{res = await getAuthorShareCode('https://raw.githubusercontent.com/lsh26/share_code/main/city.json');}catch (e) {}
     if(!res){
@@ -70,7 +69,7 @@ $.newShareCodes = [];
                 $.newShareCodes.push(...shareUuid)
             }
             for (let i = 0; i < $.newShareCodes.length; ++i) {
-                console.log(`\n开始助力 【${$.newShareCodes[i]}】`)
+                console.log(`\n开始助力 【${$.newShareCodes[i]}】`);
                 let res = await getInfo($.newShareCodes[i])
                 if (res && res['data'] && res['data']['bizCode'] === 0) {
                     if (res['data']['result']['toasts'] && res['data']['result']['toasts'][0] && res['data']['result']['toasts'][0]['status'] === '3') {
@@ -255,36 +254,6 @@ function city_lotteryAward() {
     })
 }
 
-function requireConfig() {
-    return new Promise(resolve => {
-        console.log(`开始获取${$.name}配置文件\n`);
-        //Node.js用户请在jdCookie.js处填写京东ck;
-        let shareCodes = [];
-        if ($.isNode()) {
-            if (process.env.JD_CITY_EXCHANGE) {
-                exchangeFlag = process.env.JD_CITY_EXCHANGE || exchangeFlag;
-            }
-            if (process.env.CITY_SHARECODES) {
-                if (process.env.CITY_SHARECODES.indexOf('\n') > -1) {
-                    shareCodes = process.env.CITY_SHARECODES.split('\n');
-                } else {
-                    shareCodes = process.env.CITY_SHARECODES.split('&');
-                }
-            }
-        }
-        console.log(`共${cookiesArr.length}个京东账号\n`);
-        $.shareCodesArr = [];
-        if ($.isNode()) {
-            Object.keys(shareCodes).forEach((item) => {
-                if (shareCodes[item]) {
-                    $.shareCodesArr.push(shareCodes[item])
-                }
-            })
-        }
-        console.log(`您提供了${$.shareCodesArr.length}个账号的${$.name}助力码\n`);
-        resolve()
-    })
-}
 function TotalBean() {
     return new Promise(async resolve => {
         const options = {
