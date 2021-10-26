@@ -21,6 +21,8 @@ if ($.isNode()) {
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let insertCodes = []
 let inviteCodes = []
+let UA = '',uuid = '';
+
 !(async () => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
@@ -56,6 +58,8 @@ let inviteCodes = []
             $.isLogin = true;
             $.nickName = '';
             message = '';
+            UA = `jdapp;iPhone;10.2.0;13.1.2;${randomString(40)};M/5.0;network/wifi;ADID/;model/iPhone8,1;addressid/2308460611;appBuild/167853;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`
+            uuid = UA.split(';')[4]
             await TotalBean();
             console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
             if (!$.isLogin) {
@@ -78,6 +82,8 @@ let inviteCodes = []
         $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
         $.index = i + 1;
         $.canHelp = true;
+        UA = `jdapp;iPhone;10.2.0;13.1.2;${randomString(40)};M/5.0;network/wifi;ADID/;model/iPhone8,1;addressid/2308460611;appBuild/167853;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`
+        uuid = UA.split(';')[4]
         if (!cookie) continue
         for (let code of inviteCodes) {
             if ($.UserName === code['user']) continue;
@@ -129,6 +135,14 @@ let inviteCodes = []
         $.done();
     })
 
+function randomString(e) {
+    e = e || 32;
+    let t = "abcdef0123456789", a = t.length, n = "";
+    for (let i = 0; i < e; i++)
+        n += t.charAt(Math.floor(Math.random() * a));
+    return n
+}
+
 function getRandomArrayElements(arr, count) {
     var shuffled = arr.slice(0), i = arr.length, min = i - count, temp, index;
     while (i-- > min) {getRandomArrayElements
@@ -171,20 +185,20 @@ async function main() {
 function taskPostUrl(functionId,body) {
     return {
         url: `${JD_API_HOST}`,
-        body: `functionId=${functionId}&body=${escape(JSON.stringify(body))}&client=wh5&clientVersion=1.0.0`,
+        body: `functionId=${functionId}&body=${JSON.stringify(body)}&client=wh5&clientVersion=1.0.0&uuid=${uuid}`,
         headers: {
             'Cookie': cookie,
             'Host': 'api.m.jd.com',
             'Connection': 'keep-alive',
             'Content-Type': 'application/x-www-form-urlencoded',
-            "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+            "User-Agent": UA,
             'Accept-Language': 'zh-cn',
             'Accept-Encoding': 'gzip, deflate, br',
         }
     }
 }
 function getInfo(inviteId, flag = false) {
-    let body = {"lbsCity":"19","realLbsCity":"1601","inviteId":inviteId,"headImg":"","userName":""}
+    let body = {"lbsCity":"1","realLbsCity":"2953","inviteId":inviteId,"headImg":"","userName":"","taskChannel":"1"}
     return new Promise((resolve) => {
         $.post(taskPostUrl("city_getHomeData",body), async (err, resp, data) => {
             try {
@@ -333,7 +347,7 @@ function TotalBean() {
                 "Connection": "keep-alive",
                 "Cookie": cookie,
                 "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
-                "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1")
+                "User-Agent": UA,
             }
         }
         $.post(options, (err, resp, data) => {
