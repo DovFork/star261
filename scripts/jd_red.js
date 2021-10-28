@@ -87,7 +87,7 @@ async function main() {
 function mainInfo() {
     return new Promise(resolve => {
         let opts = {
-            url: `https://api.m.jd.com/api?functionId=shareUnionCoupon&appid=u&_=${Date.now()}&loginType=2&body={%22unionActId%22:%2231134%22,%22actId%22:%22${$.actId}%22,%22platform%22:4,%22unionShareId%22:%22${$.shareCode}%22,%22d%22:%223MXlMUn%22,%22supportPic%22:2,%22supportLuckyCode%22:0,%22eid%22:%22${$.eid}%22}&client=apple&clientVersion=8.3.6`,
+            url: `https://api.m.jd.com/api?functionId=shareUnionCoupon&appid=u&_=${Date.now()}&loginType=2&body={%22unionActId%22:%2231134%22,%22actId%22:%22${$.actId}%22,%22platform%22:4,%22unionShareId%22:%22${$.shareCode}%22,%22d%22:%22${$.code}%22,%22supportPic%22:2,%22supportLuckyCode%22:0,%22eid%22:%22${$.eid}%22}&client=apple&clientVersion=8.3.6`,
             headers: {
                 "Accept-Language": "zh-cn",
                 "Accept-Encoding": "gzip, deflate, br",
@@ -103,7 +103,7 @@ function mainInfo() {
                     let res = $.toObj(data,data);
                     if(typeof res == 'object'){
                         if(res.code == 0 && res.data && res.data.shareUrl){
-                            $.shareCode = res.data.shareUrl.match(/3MXlMUn\?s=([^&]+)/) && res.data.shareUrl.match(/3MXlMUn\?s=([^&]+)/)[1] || ''
+                            $.shareCode = res.data.shareUrl.match(/$.code\?s=([^&]+)/) && res.data.shareUrl.match(/$.code\?s=([^&]+)/)[1] || ''
                             console.log('助力码:'+$.shareCode)
                         }
                     }else{
