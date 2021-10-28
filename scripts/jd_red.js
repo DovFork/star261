@@ -1,9 +1,11 @@
 /*
-双十一无门槛红包(参考了蛙🐸的)
+双十一无门槛红包
 cron 0 0,12 * * * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_red.js
+返利变量：FLCODE，默认给脚本作者返利，若需要返利给自己，请自己修改返利变量FLCODE；例：FLCODE="你的返利code"
 * */
 const $ = new Env('双11红包');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+const flCode = $.isNode() ? (process.env.FLCODE ? process.env.FLCODE : '3MXlMUn'):'3MXlMUn';
 let cookiesArr = [];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
@@ -18,7 +20,7 @@ if ($.isNode()) {
         ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
 let cookie = '';
-$.code = '3MXlMUn';
+$.code = flCode;
 $.shareCode = '';
 !(async () => {
     if (!cookiesArr[0]) {
