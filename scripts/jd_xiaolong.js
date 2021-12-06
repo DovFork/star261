@@ -54,7 +54,7 @@ let hotList = [];
 async function main() {
     $.UA =  $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.2.2;14.2;%E4%BA%AC%E4%B8%9C/9.2.2 CFNetwork/1206 Darwin/20.1.0");
     Host = `lzdz-isv.isvjcloud.com`;
-    Referer = `https://lzdz-isv.isvjcloud.com/unify/common/activity/bc48caef4ff94713a9b0596e256c29bf?activityId=bc48caef4ff94713a9b0596e256c29bf&shareUuid=&shareUuid=${$.shareUuid}`;
+    Referer = `https://lzdz-isv.isvjcloud.com/unify/common/activity/bc48caef4ff94713a9b0596e256c29bf?activityId=bc48caef4ff94713a9b0596e256c29bf&shareUuid=${$.shareUuid}`;
     console.log(`活动地址：${Referer}`);
     token = '',LZ_TOKEN_KEY='',LZ_TOKEN_VALUE='',lz_jdpin_token = ``,venderId = ``,shopId = ``,pin =  ``,nickname = '',actorUuid = '';
     token = await getToken();
