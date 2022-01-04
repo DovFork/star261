@@ -290,7 +290,7 @@ async function buyChick(configInfo,homePageInfo,cardInfo){
     let cardList = cardInfo.cardinfo || [];
     for (let i = cardList.length-1; i >= 0 && canBuy > 0; i--) {
         let oneCardInfo = cardList[i];
-        if(oneCardInfo.currnum === oneCardInfo.neednum && canBuy > 0){
+        if(oneCardInfo.currnum >= oneCardInfo.neednum && canBuy > 0){
             console.log(`合成一只小鸡`);
             let combineInfo = await takeRequest(`jxmc`,`operservice/Combine`,`&cardtype=${oneCardInfo.cardtype}`,`activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp`,true);
             console.log(`现共有小鸡：${combineInfo.petinfo.length || null}只`);
