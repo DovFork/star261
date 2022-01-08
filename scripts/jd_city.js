@@ -47,7 +47,7 @@ let UA = '',uuid = '';
     if (exchangeFlag) {
         console.log(`脚本自动抽奖`)
     } else {
-        console.log(`脚本默认在10.30日自动开启抽奖,如需现在自动抽奖请设置环境变量  JD_CITY_EXCHANGE 为true`);
+        //console.log(`脚本默认在10.30日自动开启抽奖,如需现在自动抽奖请设置环境变量  JD_CITY_EXCHANGE 为true`);
     }
     for (let i = 0; i < cookiesArr.length && inviteCodes.length === 0; i++) {
         if (cookiesArr[i]) {
