@@ -1,6 +1,6 @@
 /*
 城城领现金
-cron 0 0-23/1 * * * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_city.js
+cron 0 0,9,18,22 * * * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_city.js
 说明：默认助力第一个CK和脚本内置作者助力码，介意勿跑
 环境变量：CITYHELP, 脚本助力哪一个CK，默认助力第一个CK； 例：CITYHELP="3"，则助力第3个CK
  */
