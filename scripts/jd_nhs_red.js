@@ -38,6 +38,9 @@ if ($.isNode()) {
 })().catch((e) => {$.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')}).finally(() => {$.done();})
 
 async function main(ck){
+    if(ck.substring(ck.length-1) !== ';'){
+        ck +=';';
+    }
     let code = flCode;
     if(flCode === '999'){
         let codeList = ['SIi6kde','SKaWlTd','YCIpvBT'];
