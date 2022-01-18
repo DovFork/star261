@@ -122,7 +122,7 @@ async function doTask(){
             }else{
                 console.log(`任务：${$.oneTask.assignmentName}，去执行`);
             }
-            let subInfo = $.oneTask.ext.followShop || $.oneTask.ext.brandMemberList || '';
+            let subInfo = oneTask.ext.followShop || oneTask.ext.brandMemberList || oneTask.ext.shoppingActivity ||'';
             if(subInfo && subInfo[0]){
                 $.runInfo = subInfo[0];
             }else{
