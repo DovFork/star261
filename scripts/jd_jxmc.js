@@ -239,57 +239,49 @@ async function main() {
         await buyCabbage(homePageInfo);
         await feed();
     }
-    //await doUserLoveInfo();
+    await doCockShopping();
 }
 
-async function doUserLoveInfo() {
-    console.log(`助农活动`);
-    let taskLiskInfo = await takeRequest(`newtasksys`, `newtasksys_front/GetUserTaskStatusList`, `&source=jxmc_zanaixin&bizCode=jxmc_zanaixin&dateType=2&showAreaTaskFlag=0&jxpp_wxapp_type=7`, `bizCode%2CdateType%2Cjxpp_wxapp_type%2CshowAreaTaskFlag%2Csource`, false);
-    let taskLisk = taskLiskInfo.userTaskStatusList;
-    for (let i = 0; i < taskLisk.length; i++) {
-        let oneTask = taskLisk[i];
-        if(oneTask.awardStatus === 1){
-            console.log(`任务：${oneTask.taskName},已完成`)
-            continue;
-        }
-        if (oneTask.awardStatus === 2 && oneTask.completedTimes === oneTask.targetTimes) {
-            console.log(`完成任务：${oneTask.taskName}`);
-            awardInfo = await takeRequest(`newtasksys`, `newtasksys_front/Award`, `source=jxmc_zanaixin&taskId=${oneTask.taskId}&bizCode=jxmc_zanaixin`, `bizCode%2Csource%2CtaskId`, true);
-            console.log(`领取爱心成功，获得${JSON.parse(awardInfo.prizeInfo).prizeInfo}`);
+async function doCockShopping() {
+    console.log(`\n公鸡赶集`);
+    let taskLiskInfo = await takeRequest(`jxmc`, `queryservice/GetCockShoppingInfo`, ``, undefined, true);
+    if(taskLiskInfo.status === 0){
+        await $.wait(3000);
+        let totalbalanceInfo = await takeRequest(`jxmc`, `queryservice/GetAccountBalance`, `&accounttype=0`, `accounttype%2Cactiveid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp`, true);
+        if(totalbalanceInfo.totalbalance >= taskLiskInfo.costvalue){
             await $.wait(3000);
-            $.freshFlag = true;
-        }
-        if(oneTask.taskId === 2147 || oneTask.taskId === 2157 || oneTask.taskId === 2167 || oneTask.taskId === 2171){
-            console.log(`去做任务：${oneTask.description}，等待5S`);
-            awardInfo = await takeRequest(`newtasksys`,`newtasksys_front/DoTask`,`source=jxmc_zanaixin&taskId=${oneTask.taskId}&bizCode=jxmc_zanaixin&configExtra=`,`bizCode%2CconfigExtra%2Csource%2CtaskId`,false);
-            await $.wait(5500);
-            console.log(`完成任务：${oneTask.description}`);
-            awardInfo = await takeRequest(`newtasksys`,`newtasksys_front/Award`,`source=jxmc_zanaixin&taskId=${oneTask.taskId}&bizCode=jxmc_zanaixin`,`bizCode%2Csource%2CtaskId`,true);
-            console.log(`领取爱心成功，获得${JSON.parse(awardInfo.prizeInfo).prizeInfo}`);
-        }
-
-        if(oneTask.taskId === 2154 && oneTask.completedTimes !== 1){
-            console.log(`去做任务：${oneTask.description}，等待5S`);
-            awardInfo = await takeRequest(`jxmc`,`operservice/GetInviteStatus`,``,undefined,true);
-            await $.wait(5500);
-            console.log(`完成任务：${oneTask.description}`);
-            awardInfo = await takeRequest(`newtasksys`,`newtasksys_front/Award`,`source=jxmc_zanaixin&taskId=${oneTask.taskId}&bizCode=jxmc_zanaixin`,`bizCode%2Csource%2CtaskId`,true);
-            if(awardInfo && awardInfo.prizeInfo && JSON.parse(awardInfo.prizeInfo)){
-                console.log(`领取爱心成功，获得${JSON.parse(awardInfo.prizeInfo).prizeInfo || ''}`);
+            console.log(`花费金币:${taskLiskInfo.costvalue},去赶集`);
+            let joinShoppingInfo = await takeRequest(`jxmc`, `operservice/JoinShopping`, `&enrollflag=0`, `activeid%2Cactivekey%2Cchannel%2Cenrollflag%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp`, true);
+            if(joinShoppingInfo && joinShoppingInfo.status === 1 ){
+                let cockbacktime = joinShoppingInfo.cockbacktime;
+                let date =  new Date(cockbacktime*1000)
+                let backTime = date.getFullYear() + "-" + (date.getMonth() < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "-" + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate())
+                backTime += ' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+                console.log(`赶集成功，返回时间：${backTime}`);
             }else{
-                console.log(`领取爱心：${JSON.stringify(awardInfo)}`);
+                console.log(`失败`);
+                console.log(JSON.stringify(joinShoppingInfo));
             }
+        }else{
+            console.log(`赶集所需要金币不足`);
         }
-    }
-    let userLoveInfo = await takeRequest(`jxmc`, `queryservice/GetUserLoveInfo`, ``, undefined, true);
-    let lovelevel = userLoveInfo.lovelevel;
-    for (let i = 0; i < lovelevel.length; i++) {
-        if(lovelevel[i].drawstatus === 1){
-            console.log(`抽取红包`);
-            let drawLoveHongBao =await takeRequest(`jxmc`, `operservice/DrawLoveHongBao`, `&lovevalue=${lovelevel[i].lovevalue}`, `activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Clovevalue%2Cphoneid%2Csceneid%2Ctimestamp`, true);
-            console.log(`抽取结果：${JSON.stringify(drawLoveHongBao)}`);
-            await $.wait(3000);
+    }else if(taskLiskInfo.status === 1){
+        let cockbacktime = taskLiskInfo.cockbacktime;
+        let date =  new Date(cockbacktime*1000)
+        let backTime = date.getFullYear() + "-" + (date.getMonth() < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "-" + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate())
+        backTime += ' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+        console.log(`赶集中，返回时间：${backTime}`);
+    }else if(taskLiskInfo.status === 2){
+        console.log(`赶集结束`);
+        let joinShoppingInfo = await takeRequest(`jxmc`, `operservice/DrawShopping`, `&commtype=0`, `activeid%2Cactivekey%2Cchannel%2Ccommtype%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp`, true);
+        console.log(JSON.stringify(joinShoppingInfo));
+        if(joinShoppingInfo.status === 999){
+            await $.wait(8000);
+            let joinShoppingInfo2 = await takeRequest(`jxmc`, `operservice/DrawShopping`, `&commtype=2`, `activeid%2Cactivekey%2Cchannel%2Ccommtype%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp`, true);
+            console.log(JSON.stringify(joinShoppingInfo2));
         }
+    }else{
+        console.log(`status:${taskLiskInfo.status}`)
     }
 }
 
