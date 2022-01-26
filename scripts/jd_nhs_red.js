@@ -23,6 +23,10 @@ if ($.isNode()) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
         return;
     }
+    if(Date.now() > 1643212800000){
+        console.log(`活动结束`);
+        return ;
+    }
     await CryptoScripts()
     $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
     for (let i = 0; i < cookiesArr.length; i++) {
