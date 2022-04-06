@@ -1,6 +1,7 @@
 /**
  特务Z
  明星送好礼，估计是一次性的
+ 地址：https://prodev.m.jd.com/mall/active/31GFSKyRbD3ehsHih2rQKArxfb8c/index.html?_ts=1649195676773&utm_source=iosapp
  cron 23 10,11 * * * https://raw.githubusercontent.com/star261/jd/main/scripts/jd_sendStar.js
  */
 const $ = new Env('明星送好礼');
