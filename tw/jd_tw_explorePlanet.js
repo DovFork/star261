@@ -1,8 +1,9 @@
 /*
+    特务-空间站集卡
     不是日常活动，不要设置定时
     脚本没有助力（懒得写了。。。），没集齐的手动拉人吧
 * */
-const $ = new Env('空间站集卡');
+const $ = new Env('特务-空间站集卡');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [];
 if ($.isNode()) {
